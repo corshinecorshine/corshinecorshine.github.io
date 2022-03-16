@@ -1,0 +1,134 @@
+/*!
+* The main dark mode styles
+* v2.0
+* https://github.com/cotes2020/jekyll-theme-chirpy
+* © 2018-2019 Cotes Chung
+* MIT Licensed
+*/
+
+@mixin dark-scheme {
+  /* framework */
+  --main-wrapper-bg: #282a36;
+  --body-bg: var(--main-wrapper-bg);
+  --topbar-wrapper-bg: #282a36;
+  --search-wrapper-bg: #282a36;
+  --search-icon-color: #50fa7b;
+  --input-focus-border-color: #50fa7b;
+  --mask-bg: #282a36;
+  --footer-bg-color: var(--main-wrapper-bg);
+
+  /* common color */
+  --text-color: #f8f8f2;
+  --text-muted-color: #f8f8f2;
+  --link-color: #bd93f9;
+  --link-underline-color: #bd93f9;
+  --main-border-color: #6272a4;
+  --button-bg: #44475a;
+  --blockquote-border-color: #ff79c6;
+  --blockquote-text-color: #50fa7b;
+
+  --btn-border-color: #ff79c6;
+  --btn-backtotop-color: var(--text-color);
+  --btn-backtotop-border-color: var(--btn-border-color);
+  --btn-box-shadow: var(--main-wrapper-bg);
+
+  --card-header-bg: #282a36;
+  --label-color: #bd93f9;
+
+  /* Sidebar */
+  --nav-cursor-color: #f1fa8c;
+  --sidebar-bg: radial-gradient(ellipse, #44475a 0%, #282a36 100%); 
+  --sidebar-wrapper-bg: #ff79c6;
+
+  /* Top Bar */
+  --topbar-text-color: var(--text-color);
+
+  /* Home page */
+  --post-list-text-color: #6272a4;
+  --btn-patinator-text-color: var(--text-color);
+  --btn-paginator-hover-color: #8be9fd;
+  --btn-active-bg: rgba(28, 52, 94, 1);
+  --btn-active-border-color: #ff5555;
+  --btn-text-color: var(--text-color);
+  --btn-paginator-border-color: var(--btn-border-color);
+  --btn-paginator-shadow: var(--main-wrapper-bg);
+
+  /* Posts */
+  --toc-highlight: #ff79c6;
+  --tag-bg: #f8f8f2;
+  --tag-hover: #50fa7b;
+  --tb-odd-bg: #f1fa8c; /* odd rows of the posts' table */
+  --tb-even-bg: #f1fa8c; /* even rows of the posts' table */
+  --tb-border-color: var(--tb-odd-bg);
+  --footnote-target-bg: #f1fa8c;
+  --btn-share-color: #6c757d;
+  --btn-share-hover-color: #bfc1ca;
+  --relate-post-date: var(--text-muted-color);
+  --card-bg: #282a36;
+  --card-border-color: #44475a;
+  --card-box-shadow: var(--main-wrapper-bg);
+
+  /* tags */
+  --tag-border: #ffb86c;
+  --tag-shadow: #ffb86c;
+  --search-tag-bg: var(--tag-bg);
+
+  --dash-color: rgb(63, 65, 68);
+
+  /* categories */
+  --categories-border: #ffb86c;
+  --categories-hover-bg: #ffb86c;
+
+  /* archives */
+  --timeline-node-bg: rgb(150, 152, 156);
+  --timeline-color: rgb(63, 65, 68);
+  --timeline-year-dot-color: var(--timeline-color);
+
+  /* Footer */
+  --footer-link: #ff5555;
+
+  .post-content img {
+    filter: brightness(90%);
+  }
+
+  hr {
+    border-color: var(--main-border-color);
+  }
+
+  /* posts' toc, override BS */
+  nav[data-toggle=toc] .nav-link.active,
+  nav[data-toggle=toc] .nav-link.active:focus,
+  nav[data-toggle=toc] .nav-link.active:hover,
+  nav[data-toggle=toc] .nav>li>a:focus,
+  nav[data-toggle=toc] .nav>li>a:hover {
+    color: var(--toc-highlight)!important;
+    border-left-color: var(--toc-highlight)!important;
+  }
+
+  /* categories */
+  .categories.card,
+  .list-group-item {
+    background-color: var(--card-bg);
+  }
+
+  .categories {
+    .card-header {
+      background-color: var(--card-header-bg);
+    }
+    .list-group-item {
+      border-left: none;
+      border-right: none;
+      padding-left: 2rem;
+      border-color: var(--categories-border);
+      &:last-child {
+        border-bottom-color: var(--card-bg);
+      }
+    }
+  }
+
+  #archives li:nth-child(odd) {
+    background-image: linear-gradient(to left,
+    #44475a, #44475a, #44475a, rgb(39, 39, 45), rgb(26, 26, 30));
+  }
+
+} // dark-scheme

@@ -1,0 +1,43 @@
+#  The contact options.
+#  v2.3
+#  https://github.com/cotes2020/jekyll-theme-chirpy
+#  © 2020 Cotes Chung
+#  MIT Licensed
+
+-
+  type: github
+  icon: 'fab fa-github-alt'
+  url:  'https://github.com/corshinecorshine/'
+-
+  type: twitter
+  icon: 'fab fa-twitter'
+-
+  type: email
+  icon: 'fas fa-envelope'
+  noblank: true            # open link in current tab
+-
+  type: linkedin
+  icon: 'fab fa-linkedin'
+  noblank: true
+  url: 'https://www.linkedin.com/in/radivan-hanief-b57740181'
+-
+  type: hackthebox
+  icon: 'fas fa-cube'
+  noblank: true
+  url: 'https://www.hackthebox.eu/profile/122977'
+
+
+
+
+
+
+# Uncomment and complete the url below to enable more contact options
+# -
+#   icon: 'fab fa-mastodon'   # icons powered by <https://fontawesome.com/>
+#   url:  ''                  # Fill with your mastodon account page
+# -
+#   icon: 'fab fa-linkedin'   # icons powered by <https://fontawesome.com/>
+#   url:  ''                  # Fill with your Linkedin homepage
+# -
+#   icon: 'fab fa-stack-overflow'
+#   url:  ''                  # Fill with your stackoverflow homepage
