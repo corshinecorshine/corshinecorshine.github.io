@@ -1,0 +1,12 @@
+{
+	"version": 3,
+	"file": "styles.css",
+	"sources": [
+		"styles.sass"
+	],
+	"sourcesContent": [
+		".site-title, .site-title:visited {\n    color: #f00; }\n"
+	],
+	"names": [],
+	"mappings": "AAAA,AAAA,WAAW,EAAE,WAAW,CAAC,OAAO,CAAC,EAC7B,KAAK,EAAE,IAAI,GAAG"
+}
