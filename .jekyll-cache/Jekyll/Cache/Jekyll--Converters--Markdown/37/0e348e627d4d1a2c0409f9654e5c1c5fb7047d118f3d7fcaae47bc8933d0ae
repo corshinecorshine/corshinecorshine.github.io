@@ -1,0 +1,204 @@
+I"�"<blockquote>
+  <p><strong>The information provided in this site is for educational purposes regarding pentesting. The author of the site will not be held any responsibility for any misuse of the information from this site.</strong></p>
+</blockquote>
+
+<h2 id="summary"><strong><span style="color:#ff5555">Summary</span></strong></h2>
+<hr />
+
+<ul>
+  <li>Adding new host to <code class="language-plaintext highlighter-rouge">/etc/hosts</code></li>
+  <li>Found LFI on 8080</li>
+  <li>Getting credentials of tomcat on <strong>tomcat-users.xml</strong></li>
+  <li>Create paylaod with <code class="language-plaintext highlighter-rouge">msfvenom</code></li>
+  <li>Upload the payload with <code class="language-plaintext highlighter-rouge">curl</code></li>
+  <li>Execute the file on browser to get <strong>reverse shell</strong></li>
+  <li>Get in as <code class="language-plaintext highlighter-rouge">Tomcat</code></li>
+  <li>PrivEsc to <code class="language-plaintext highlighter-rouge">Ash</code> by cracking password of zip file on <code class="language-plaintext highlighter-rouge">/var/www/html/files</code></li>
+  <li>Log in as <code class="language-plaintext highlighter-rouge">Ash</code></li>
+  <li>PrivEsc to root by abusing lxd-group</li>
+</ul>
+
+<h2 id="port-scan"><strong><span style="color:#ff5555">Port Scan</span></strong></h2>
+<hr />
+
+<p>We found port <code class="language-plaintext highlighter-rouge">22</code>,<code class="language-plaintext highlighter-rouge">80</code> and <code class="language-plaintext highlighter-rouge">8080</code> which running tomcat.</p>
+
+<p><img src="/images/htb/tabby/Nmap.png" alt="" /></p>
+
+<h2 id="website"><strong><span style="color:#ff5555">Website</span></strong></h2>
+<hr />
+
+<p><img src="/images/htb/tabby/website.png" alt="" /></p>
+
+<hr />
+
+<p>By checking the website, we found <code class="language-plaintext highlighter-rouge">megahosting.htb</code> host which we need to add it on our <code class="language-plaintext highlighter-rouge">/etc/hosts</code> otherwise we can’t go to <code class="language-plaintext highlighter-rouge">megahosting.htb/news</code>.</p>
+
+<p>After clicked <code class="language-plaintext highlighter-rouge">NEWS</code>, we found LFI which we can execute command inside the parameter.</p>
+
+<p><img src="/images/htb/tabby/LFI.png" alt="" /></p>
+
+<hr />
+
+<p>We tried to login on port 8080 with default creds of <code class="language-plaintext highlighter-rouge">tomcat</code> but failed.</p>
+
+<p><img src="/images/htb/tabby/tomcatdefaultcred.png" alt="" /></p>
+
+<p><img src="/images/htb/tabby/tomcat-users.png" alt="" /></p>
+
+<hr />
+
+<p>So we need to get the credentials, I decided to check the <code class="language-plaintext highlighter-rouge">tomcat-user.xml</code>,</p>
+
+<p><img src="/images/htb/tabby/tomcat1.png" alt="" /></p>
+
+<p><img src="/images/htb/tabby/tomcat2.png" alt="" /></p>
+
+<hr />
+
+<p>By checking the directory <code class="language-plaintext highlighter-rouge">/usr/share/tomcat9/etc/tomcat-users.xml</code> and the source code, we found the user and password of tomcat which is <strong>tomcat:$3cureP4s5w0rd123!</strong>.</p>
+
+<h2 id="gobuster"><strong><span style="color:#ff5555">Gobuster</span></strong></h2>
+<hr />
+
+<p>I also fire up <code class="language-plaintext highlighter-rouge">gobuster</code> to enum other files/dirs didn’t find any interesting stuffs.</p>
+
+<p><img src="/images/htb/tabby/gobuster.png" alt="" /></p>
+
+<h2 id="create-and-send-payload"><strong><span style="color:#ff5555">Create and send payload</span></strong></h2>
+<hr />
+
+<p>Tomcat gives us permission that able to <strong>create, delete, and manage</strong> virtual hosts with <code class="language-plaintext highlighter-rouge">curl</code>.
+So I decided to create payload and send it with <code class="language-plaintext highlighter-rouge">curl</code>.</p>
+
+<p><img src="/images/htb/tabby/payload.png" alt="" /></p>
+
+<p><img src="/images/htb/tabby/sendpayload.png" alt="" /></p>
+
+<hr />
+
+<p>To make sure that our payload is in there, we can check it.</p>
+
+<p><img src="/images/htb/tabby/listpayload.png" alt="" /></p>
+
+<h2 id="reverse-shell"><strong><span style="color:#ff5555">Reverse Shell</span></strong></h2>
+<hr />
+
+<p>After everything went smooth now we can fire up listener and go to the path that our payload was sent.</p>
+
+<p><img src="/images/htb/tabby/revshell1.png" alt="" /></p>
+
+<p><img src="/images/htb/tabby/revshell2.png" alt="" /></p>
+
+<h2 id="enumeration-inside-the-machine"><strong><span style="color:#ff5555">Enumeration inside the machine</span></strong></h2>
+<hr />
+
+<p>We fire up <code class="language-plaintext highlighter-rouge">linpeas</code> to enumerate things inside this machine</p>
+
+<p><img src="/images/htb/tabby/linpeas1.png" alt="" /></p>
+
+<hr />
+
+<p>And found a backup file in particular directory.</p>
+
+<p><img src="/images/htb/tabby/linpeas2.png" alt="" /></p>
+
+<h2 id="cracking-the-zip"><strong><span style="color:#ff5555">Cracking the zip</span></strong></h2>
+<hr />
+
+<p>We try to su as <code class="language-plaintext highlighter-rouge">ash</code> but got permission denied, so we have to move forward by geting the zip file and examine in our machine.</p>
+
+<p><img src="/images/htb/tabby/sendzip.png" alt="" /></p>
+
+<hr />
+
+<p>The zip asked for a password, so I decided to use <code class="language-plaintext highlighter-rouge">zip2john</code> to crack this zip file.</p>
+
+<p><img src="/images/htb/tabby/askforpassword.png" alt="" /></p>
+
+<hr />
+
+<p>After getting the hash of the zip with <code class="language-plaintext highlighter-rouge">zip2john</code>, now we can crack it with <code class="language-plaintext highlighter-rouge">JohnTheRipper</code> to get the password of the zip file.</p>
+
+<p><img src="/images/htb/tabby/crackpass.png" alt="" /></p>
+
+<hr />
+
+<p>After unzip the <code class="language-plaintext highlighter-rouge">zip</code> file, I found nothing interesting inside, so by guessing this is the <code class="language-plaintext highlighter-rouge">Ash</code> password, I headed to the shell again and su as <code class="language-plaintext highlighter-rouge">Ash</code>.</p>
+
+<p><img src="/images/htb/tabby/logasash.png" alt="" /></p>
+
+<h2 id="login-as-ash"><strong><span style="color:#ff5555">Login as Ash</span></strong></h2>
+<hr />
+
+<p>And now we can read <code class="language-plaintext highlighter-rouge">user.txt</code> inside the machine.</p>
+
+<p><img src="/images/htb/tabby/usertxt.png" alt="" /></p>
+
+<p><img src="/images/htb/tabby/idofash.png" alt="" /></p>
+
+<hr />
+
+<p>By running <code class="language-plaintext highlighter-rouge">id</code> as <code class="language-plaintext highlighter-rouge">Ash</code>, we found <code class="language-plaintext highlighter-rouge">Ash</code> is in the <strong>lxd group</strong>.</p>
+
+<h2 id="escalating-to-root"><strong><span style="color:#ff5555">Escalating to root</span></strong></h2>
+<hr />
+
+<p>After few minutes of searching, I found one article that related and one github repository that we should clone to our machine.</p>
+
+<blockquote>
+  <p><a href="https://www.hackingarticles.in/lxd-privilege-escalation/">lxd-privilege-escalation</a></p>
+</blockquote>
+
+<blockquote>
+  <p><a href="https://github.com/saghul/lxd-alpine-builder">Github - lxd-alpine-builder</a></p>
+</blockquote>
+
+<p>After cloning the repo, we need to build it and the output will be <code class="language-plaintext highlighter-rouge">tar</code> file</p>
+
+<p><img src="/images/htb/tabby/buildalpine.png" alt="" /></p>
+
+<p><img src="/images/htb/tabby/targzalpine.png" alt="" /></p>
+
+<hr />
+
+<p>Now we need to send it to the machine.</p>
+
+<p><img src="/images/htb/tabby/sendalpine.png" alt="" /></p>
+
+<hr />
+
+<blockquote>
+  <p><strong>The commands that we need to run</strong></p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td> --><td class="rouge-code"><pre>lxd init
+lxc image import ./alpine-v3.12-x86_64-20200623_0439.tar.gz --alias corshineimage
+lxc image list
+lxc init corshineimage ignite -c security.privileged=true
+lxc config device add ignite mydevice disk source=/ path=/mnt/root recursive=true
+lxc start ignite
+lxc exec ignite /bin/sh
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>After initialize the lxd, we need to import the image with alias so we know that which one is our image and we need to list the image</p>
+
+<p><img src="/images/htb/tabby/listofimage.png" alt="" /></p>
+
+<hr />
+
+<p>After we mount the <code class="language-plaintext highlighter-rouge">/root</code> directory to <code class="language-plaintext highlighter-rouge">/mnt/root</code> directory, now we can read <code class="language-plaintext highlighter-rouge">root</code> flag.</p>
+
+<p><img src="/images/htb/tabby/exec2.png" alt="" /></p>
+
+<hr />
+
+<p><img src="/images/mandatory/pwned.png" alt="" /></p>
+:ET
