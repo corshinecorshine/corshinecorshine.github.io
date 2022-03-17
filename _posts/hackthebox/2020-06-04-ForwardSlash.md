@@ -53,7 +53,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 ╭─blackarch-corshine
 ╰─❯
 ```
-By looking at the result, we only have 2 ports open, `22:ssh` & `80:http`.
+By looking at the result, I only have 2 ports open, `22:ssh` & `80:http`.
 
 ## **<span style='color:#ff5555'>Port 80</span>**
 ***
@@ -130,7 +130,7 @@ Tried to open it on browser.
 
 ![]({{ "/images/htb/forwardslash/loginpage.png" | relative_url }})
 
-I tried to sign up and found `Local File Inclusion` on `/profilepicture.php`, we tried to enable the disabled attributes with **inspect element**
+I tried to sign up and found `Local File Inclusion` on `/profilepicture.php`, I tried to enable the disabled attributes with **inspect element**
 
 Send it to `burp` > `repeater`
 
