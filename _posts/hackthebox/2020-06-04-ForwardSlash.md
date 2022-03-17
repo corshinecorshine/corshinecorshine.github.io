@@ -61,7 +61,7 @@ By looking at the result, we only have 2 ports open, `22:ssh` & `80:http`.
 ![BoxInfo]({{ "/images/htb/forwardslash/port80.png" | relative_url }})
 
 
-I tried to run **Gobuster** but came out with no interesting things.
+Tried to run **Gobuster** but came out with no interesting things.
 
 
 ## **<span style='color:#ff5555'>Wfuzz</span>**
@@ -91,7 +91,7 @@ Processed Requests: 129
 Filtered Requests: 642
 Requests/sec.: 21.34991
 ```
-I found subdomain `backup`, therefore I added `backup.forwardslash.htb` on `/etc/hosts`
+Found subdomain `backup`, therefore I added `backup.forwardslash.htb` on `/etc/hosts`
 
 ## **<span style='color:#ff5555'>Gobuster backup sub</span>**
 ***
@@ -130,7 +130,7 @@ Tried to open it on browser.
 
 ![]({{ "/images/htb/forwardslash/loginpage.png" | relative_url }})
 
-I tried to sign up and found `Local File Inclusion` on `/profilepicture.php`, we tried to enable the disabled attributes with **inspect element**
+Tried to sign up and found `Local File Inclusion` on `/profilepicture.php`, we tried to enable the disabled attributes with **inspect element**
 
 Send it to `burp` > `repeater`
 
@@ -341,11 +341,11 @@ Content-Type: text/html; charset=UTF-8
 PD9waHAKLy9pbmNsdWRlX29uY2UgLi4vc2Vzc2lvbi5waHA7Ci8vIEluaXRpYWxpemUgdGhlIHNlc3Npb24Kc2Vzc2lvbl9zdGFydCgpOwoKaWYoKCFpc3NldCgkX1NFU1NJT05bImxvZ2dlZGluIl0pIHx8ICRfU0VTU0lPTlsibG9nZ2VkaW4iXSAhPT0gdHJ1ZSB8fCAkX1NFU1NJT05bJ3VzZXJuYW1lJ10gIT09ICJhZG1pbiIpICYmICRfU0VSVkVSWydSRU1PVEVfQUREUiddICE9PSAiMTI3LjAuMC4xIil7CiAgICBoZWFkZXIoJ0hUVFAvMS4wIDQwMyBGb3JiaWRkZW4nKTsKICAgIGVjaG8gIjxoMT40MDMgQWNjZXNzIERlbmllZDwvaDE+IjsKICAgIGVjaG8gIjxoMz5BY2Nlc3MgRGVuaWVkIEZyb20gIiwgJF9TRVJWRVJbJ1JFTU9URV9BRERSJ10sICI8L2gzPiI7CiAgICAvL2VjaG8gIjxoMj5SZWRpcmVjdGluZyB0byBsb2dpbiBpbiAzIHNlY29uZHM8L2gyPiIKICAgIC8vZWNobyAnPG1ldGEgaHR0cC1lcXVpdj0icmVmcmVzaCIgY29udGVudD0iMzt1cmw9Li4vbG9naW4ucGhwIiAvPic7CiAgICAvL2hlYWRlcigibG9jYXRpb246IC4uL2xvZ2luLnBocCIpOwogICAgZXhpdDsKfQo/Pgo8aHRtbD4KCTxoMT5YTUwgQXBpIFRlc3Q8L2gxPgoJPGgzPlRoaXMgaXMgb3VyIGFwaSB0ZXN0IGZvciB3aGVuIG91ciBuZXcgd2Vic2l0ZSBnZXRzIHJlZnVyYmlzaGVkPC9oMz4KCTxmb3JtIGFjdGlvbj0iL2Rldi9pbmRleC5waHAiIG1ldGhvZD0iZ2V0IiBpZD0ieG1sdGVzdCI+CgkJPHRleHRhcmVhIG5hbWU9InhtbCIgZm9ybT0ieG1sdGVzdCIgcm93cz0iMjAiIGNvbHM9IjUwIj48YXBpPgogICAgPHJlcXVlc3Q+dGVzdDwvcmVxdWVzdD4KPC9hcGk+CjwvdGV4dGFyZWE+CgkJPGlucHV0IHR5cGU9InN1Ym1pdCI+Cgk8L2Zvcm0+Cgo8L2h0bWw+Cgo8IS0tIFRPRE86CkZpeCBGVFAgTG9naW4KLS0+Cgo8P3BocAppZiAoJF9TRVJWRVJbJ1JFUVVFU1RfTUVUSE9EJ10gPT09ICJHRVQiICYmIGlzc2V0KCRfR0VUWyd4bWwnXSkpIHsKCgkkcmVnID0gJy9mdHA6XC9cL1tcc1xTXSpcL1wiLyc7CgkvLyRyZWcgPSAnLygoKCgyNVswLTVdKXwoMlswLTRdXGQpfChbMDFdP1xkP1xkKSkpXC4pezN9KCgoKDI1WzAtNV0pfCgyWzAtNF1cZCl8KFswMV0/XGQ/XGQpKSkpLycKCglpZiAocHJlZ19tYXRjaCgkcmVnLCAkX0dFVFsneG1sJ10sICRtYXRjaCkpIHsKCQkkaXAgPSBleHBsb2RlKCcvJywgJG1hdGNoWzBdKVsyXTsKCQllY2hvICRpcDsKCQllcnJvcl9sb2coIkNvbm5lY3RpbmciKTsKCgkJJGNvbm5faWQgPSBmdHBfY29ubmVjdCgkaXApIG9yIGRpZSgiQ291bGRuJ3QgY29ubmVjdCB0byAkaXBcbiIpOwoKCQllcnJvcl9sb2coIkxvZ2dpbmcgaW4iKTsKCgkJaWYgKEBmdHBfbG9naW4oJGNvbm5faWQsICJjaGl2IiwgJ04wYm9keUwxa2VzQmFjay8nKSkgewoKCQkJZXJyb3JfbG9nKCJHZXR0aW5nIGZpbGUiKTsKCQkJZWNobyBmdHBfZ2V0X3N0cmluZygkY29ubl9pZCwgImRlYnVnLnR4dCIpOwoJCX0KCgkJZXhpdDsKCX0KCglsaWJ4bWxfZGlzYWJsZV9lbnRpdHlfbG9hZGVyIChmYWxzZSk7CgkkeG1sZmlsZSA9ICRfR0VUWyJ4bWwiXTsKCSRkb20gPSBuZXcgRE9NRG9jdW1lbnQoKTsKCSRkb20tPmxvYWRYTUwoJHhtbGZpbGUsIExJQlhNTF9OT0VOVCB8IExJQlhNTF9EVERMT0FEKTsKCSRhcGkgPSBzaW1wbGV4bWxfaW1wb3J0X2RvbSgkZG9tKTsKCSRyZXEgPSAkYXBpLT5yZXF1ZXN0OwoJZWNobyAiLS0tLS1vdXRwdXQtLS0tLTxicj5cclxuIjsKCWVjaG8gIiRyZXEiOwp9CgpmdW5jdGlvbiBmdHBfZ2V0X3N0cmluZygkZnRwLCAkZmlsZW5hbWUpIHsKICAgICR0ZW1wID0gZm9wZW4oJ3BocDovL3RlbXAnLCAncisnKTsKICAgIGlmIChAZnRwX2ZnZXQoJGZ0cCwgJHRlbXAsICRmaWxlbmFtZSwgRlRQX0JJTkFSWSwgMCkpIHsKICAgICAgICByZXdpbmQoJHRlbXApOwogICAgICAgIHJldHVybiBzdHJlYW1fZ2V0X2NvbnRlbnRzKCR0ZW1wKTsKICAgIH0KICAgIGVsc2UgewogICAgICAgIHJldHVybiBmYWxzZTsKICAgIH0KfQoKPz4K
 ```
 
-I tried to decode the last `response` with base64.
+Tried to decode the last `response` with base64.
 
 ![]({{ "/images/htb/forwardslash/base64encoded.png" | relative_url }})
 
-and I got `php` code of `/dev/index.php`
+and we got `php` code of `/dev/index.php`
 
 ```
 <?php
@@ -428,7 +428,7 @@ function ftp_get_string($ftp, $filename) {
 ?>
 ```
 
-But I found the interesting line
+But we found the interesting line
 ```
 if (@ftp_login($conn_id, "chiv", 'N0bodyL1kesBack/')) {
 ```
@@ -479,7 +479,7 @@ I tried to run `LinPeas.sh` to find a way to get user `pain`, and I found that `
 -r-sr-xr-x 1 pain pain 13384 Mar  6 10:06 /usr/bin/backup
 ```
 
-Also I found `config.php.bak` which also owned by `pain`, but `chiv` does not have to do anything with it, so move on :')
+Also found `config.php.bak` which also owned by `pain`, but `chiv` does not have to do anything with it, so move on :')
 
 ## **<span style='color:#ff5555'>Analyze the binary</span>**
 ***
@@ -516,7 +516,7 @@ ERROR: 834e8e2a2c83f1b3e2dbfe3929e24b34 Does Not Exist or Is Not Accessible By M
 chiv@forwardslash:~$ 
 ```
 
-So I found the md5 is being generated, and it has something to do with `config.php.bak`
+So we found the md5 is being generated, and it has something to do with `config.php.bak`
 
 ## **<span style='color:#ff5555'>Script to get to pain</span>**
 ***
@@ -673,7 +673,7 @@ drwxr-xr-x 3 root root                 4096 Mar 24 10:10 ..
 -rw-r----- 1 root backupoperator 1000000000 Apr 21 16:01 encrypted_backup.img
 ```
 
-Tried to map `encrypted_backup.img` with `cryptsetup` in `/dev/mapper/backup`
+Try to map `encrypted_backup.img` with `cryptsetup` in `/dev/mapper/backup`
 
 ```
 pain@forwardslash:~$ sudo /sbin/cryptsetup luksOpen /var/backups/recovery/encrypted_backup.img backup
@@ -681,9 +681,9 @@ Enter passphrase for /var/backups/recovery/encrypted_backup.img:
 pain@forwardslash:~$
 ```
 
-I tried to create dir mnt and execute `sudo /bin/mount /dev/mapper/backup /mnt/`, and now it's mounted to `mnt dir`
+Create dir mnt and execute `sudo /bin/mount /dev/mapper/backup /mnt/`, and now it's mounted to `mnt dir`
 
-I found **id_rsa** of `root`
+We found **id_rsa** of `root`
 
 
 ```
