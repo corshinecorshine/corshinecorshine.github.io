@@ -7,7 +7,7 @@ tags: [LFI, Luks, Crypto, Fuzz, Php, Python, Ssrf]
 image: /assets/img/Post/ForwardSlash.jpeg
 ---
 
->   **All information available on this site are for educational purposes only. Use these at your own discretion, the site owners cannot be held responsible for any damages caused.**
+>   **Any actions and or activities related to the material contained within this Website is solely your responsibility.The misuse of the information in this website can result in criminal charges brought against the persons in question.**
 
 
 ## **<span style='color:#ff5555'>Summary</span>**

