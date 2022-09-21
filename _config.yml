@@ -8,23 +8,23 @@
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 #--------------------------
 
-title: CORSHINE                          # the main title
+title: RHOVELIONZ                          # the main title
 
-tagline: Publish write-ups from various pentesting platforms.  # it will display as the sub-title
+tagline: Publish Writeup and Pentesting Report  # it will display as the sub-title
 
 description: >-                        # used by seo meta and the atom feed
   All the information provided on this site is for educational purposes only. The author of the site will not be held any responsibility for any misuse of the information.
 
 # Replace with the website url, e.g. 'https://username.github.io'
-url: 'corshinecorshine.github.io'
+url: 'rhovelionz.github.io'
 
-author: CORSHINE                  # change to your full name
+author: RHOVELIONZ                  # change to your full name
 
 #avatar: /assets/img/sample/corshine1.jpg
 avatar: /assets/img/sample/blue-corshine.png
 
 github:
-  username: corshinecorshine             # change to your github username
+  username: rhovelionz             # change to your github username
 
 twitter:
   username: radivanh            # change to your twitter username
@@ -36,7 +36,7 @@ hackthebox:
   username: corshine
 
 social:
-  name: Corshine                  # it will shows as the copyright owner in Footer
+  name: Rhovelionz                  # it will shows as the copyright owner in Footer
   email: radivanhradivanh@gmail.com             # change to your email address
   links:
     # The first element serves as the copyright owner's link
