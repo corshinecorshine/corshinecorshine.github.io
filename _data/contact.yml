@@ -7,24 +7,25 @@
 -
   type: github
   icon: 'fab fa-github-alt'
-  url:  'https://github.com/corshinecorshine/'
+  url:  'https://github.com/rhovelionz/'
 -
   type: twitter
   icon: 'fab fa-twitter'
+  url: 'https://twitter.com/radivanh'
 -
   type: email
   icon: 'fas fa-envelope'
   noblank: true            # open link in current tab
 -
-  type: linkedin
-  icon: 'fab fa-linkedin'
-  noblank: true
-  url: 'https://www.linkedin.com/in/radivan-hanief-b57740181'
+#  type: linkedin
+#  icon: 'fab fa-linkedin'
+#  noblank: true
+#  url: 'https://www.linkedin.com/in/radivan-hanief-b57740181'
 -
-  type: hackthebox
-  icon: 'fas fa-cube'
-  noblank: true
-  url: 'https://www.hackthebox.eu/profile/122977'
+#  type: hackthebox
+#  icon: 'fas fa-cube'
+#  noblank: true
+#  url: 'https://www.hackthebox.eu/profile/122977'
 
 
 

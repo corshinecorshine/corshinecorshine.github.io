@@ -1,7 +1,7 @@
 ---
 title: Tryhackme - AttacktiveDirectory
 boxinfo: /images/thm/Attacktive-directory/logobox.png
-author: Corshine
+author: Rhovelionz
 date: 2020-08-17 07:21:00 +0700
 categories: [Tryhackme]
 tags: [Smbclient, Winrm, Kerbrute, Hashcat, Cracking, Secretsdump, Base64, Decode]

