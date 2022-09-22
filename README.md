@@ -1,9 +1,6 @@
 [![forthebadge](https://forthebadge.com/images/badges/fuck-it-ship-it.svg)](https://forthebadge.com)
 
 
-- **Cyber Security Specialist**
-- **Security Researcher**
-
 ![badge](https://www.hackthebox.eu/badge/image/122977)
 
 ******
