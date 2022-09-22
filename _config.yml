@@ -8,7 +8,7 @@
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 #--------------------------
 
-title: RHOVELIONZ                          # the main title
+title: Rhovelionz                          # the main title
 
 tagline: Publish Writeup and Pentesting Report  # it will display as the sub-title
 
@@ -18,7 +18,7 @@ description: >-                        # used by seo meta and the atom feed
 # Replace with the website url, e.g. 'https://username.github.io'
 url: 'rhovelionz.github.io'
 
-author: RHOVELIONZ                  # change to your full name
+author: Rhovelionz                  # change to your full name
 
 #avatar: /assets/img/sample/corshine1.jpg
 avatar: /assets/img/sample/blue-corshine.png
