@@ -12,7 +12,7 @@ panel:
   toc: "Contents"
 
 post:
-  relate_posts: "Read other write-ups below"
+  relate_posts: "More stuffs below ↓"
   #button:
   #  next: Newer
   #  previous: Older
