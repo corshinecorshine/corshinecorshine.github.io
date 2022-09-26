@@ -59,6 +59,7 @@ baseurl: '/'
 
 # Change to your timezone › http://www.timezoneconverter.com/cgi-bin/findzone/findzone
 timezone: Asia/Jakarta
+future: true
 
 google_analytics:
   id: 'UA-175469707-1'          # Fill with your Google Analytics ID
