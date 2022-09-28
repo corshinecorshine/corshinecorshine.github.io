@@ -1,0 +1,2 @@
+- After create post, run bash tools/run.sh
+- git add commit push on _site dir
