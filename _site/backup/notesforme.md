@@ -1,2 +1,2 @@
-- After create post, run bash tools/run.sh
-- git add commit push on _site dir
+- After create post, run bash tools/run.sh and keep it hang
+- git add commit push on _site dir..
