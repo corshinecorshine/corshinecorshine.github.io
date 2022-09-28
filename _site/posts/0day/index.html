@@ -248,7 +248,7 @@ THM{Sh3llSh0ck_*****}
 Connection from 10.10.241.3:48350
 id
 uid=33(www-data) gid=33(www-data) groups=33(www-data)
-</span></pre></table></code></div></div><p>And we got shell as www-data, try running sudo -l with no result, but uname -a is exploitable using <code class="language-plaintext highlighter-rouge">"overlayfs Local Privilege Escalation"</code></p><h2 id="escalate-to-root"><strong><span style="color:#ff5555">Escalate to root</span></strong></h2><hr /><div class="language-terminal highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</span></pre></table></code></div></div><p>And we got shell as www-data, try running <code class="language-plaintext highlighter-rouge">sudo -l</code> with no result, but <code class="language-plaintext highlighter-rouge">uname -a</code> is exploitable using <code class="language-plaintext highlighter-rouge">"overlayfs Local Privilege Escalation"</code></p><h2 id="escalate-to-root"><strong><span style="color:#ff5555">Escalate to root</span></strong></h2><hr /><div class="language-terminal highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
