@@ -92,11 +92,11 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
 
 ````
 
-`/r `caught my attention, by checking it out, we find an image.
+Directory `/r` but found nothing useful
 
 ![]({{ "/images/thm/wonderland/keepgoing.png" | relative_url }})
 
-Running gobuster again to check subdirectories in `/r`.
+Running gobuster again to check subdirectories in `/r`
 
 ```terminal
 ➜  wonderland gobuster dir --url http://10.10.113.230/r/ --wordlist /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt
