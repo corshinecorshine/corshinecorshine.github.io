@@ -92,11 +92,11 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
 
 ````
 
-Directory `/r` but found nothing useful
+Directory `/r` has nothing useful
 
 ![]({{ "/images/thm/wonderland/keepgoing.png" | relative_url }})
 
-Running gobuster again to check subdirectories in `/r`
+Running gobuster again to check subdirectories in `/r`.
 
 ```terminal
 ➜  wonderland gobuster dir --url http://10.10.113.230/r/ --wordlist /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt
@@ -164,7 +164,7 @@ Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-101-generic x86_64)
 Last login: Mon May 25 16:37:21 2020 from 192.168.170.1
 ```
 
-`sudo -l` shows something can be useful, user rabbit able to execute python3 and walrus_and_the_carpenter.py. I successfully logged in with the credentials. In the home directory of alice was a python script and a "root.txt" file. Obviously i didn't have access to read the root.txt.
+`sudo -l` shows something can be useful, user rabbit able to execute python3 and python script called walrus_and_the_carpenter.py.
 
 ```terminal
 alice@wonderland:~$ sudo -l
@@ -217,7 +217,7 @@ lrwxrwxrwx 1 root   root       9 May 25  2020 .bash_history -> /dev/null
 -rwsr-sr-x 1 root   root   16816 May 25  2020 teaParty
 ```
 
-Run the Binary and we receive a message from it
+Run the Binary and we receive a message from it.
 
 ```terminal
 $ ./teaParty
@@ -280,7 +280,7 @@ hatter@wonderland:/home/hatter$ cat password.txt
 *****************************************
 ```
 
-## **<span style='color:#ff5555'>Road to ROOT</span>**
+## **<span style='color:#ff5555'>Escalate to ROOT</span>**
 ***
 
 Ssh as hatter with password from the text file.

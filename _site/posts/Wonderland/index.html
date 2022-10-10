@@ -92,7 +92,7 @@ by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)
 </span><span class="gp">/img                  (Status: 301) [Size: 0] [--&gt;</span><span class="w"> </span>img/]
 <span class="gp">/r                    (Status: 301) [Size: 0] [--&gt;</span><span class="w"> </span>r/]
 <span class="go">
-</span></pre></table></code></div></div><p>Directory <code class="language-plaintext highlighter-rouge">/r</code> but found nothing useful</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/images/thm/wonderland/keepgoing.png" alt="" /></p><p>Running gobuster again to check subdirectories in <code class="language-plaintext highlighter-rouge">/r</code></p><div class="language-terminal highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</span></pre></table></code></div></div><p>Directory <code class="language-plaintext highlighter-rouge">/r</code> has nothing useful</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/images/thm/wonderland/keepgoing.png" alt="" /></p><p>Running gobuster again to check subdirectories in <code class="language-plaintext highlighter-rouge">/r</code>.</p><div class="language-terminal highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -188,7 +188,7 @@ Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-101-generic x86_64)
 
 
 Last login: Mon May 25 16:37:21 2020 from 192.168.170.1
-</span></pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">sudo -l</code> shows something can be useful, user rabbit able to execute python3 and walrus_and_the_carpenter.py. I successfully logged in with the credentials. In the home directory of alice was a python script and a “root.txt” file. Obviously i didn’t have access to read the root.txt.</p><div class="language-terminal highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</span></pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">sudo -l</code> shows something can be useful, user rabbit able to execute python3 and python script called walrus_and_the_carpenter.py.</p><div class="language-terminal highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -238,7 +238,7 @@ drwxr-xr-x 6 root   root    4096 May 25  2020 ..
 -rw-r--r-- 1 rabbit rabbit  3771 May 25  2020 .bashrc
 -rw-r--r-- 1 rabbit rabbit   807 May 25  2020 .profile
 -rwsr-sr-x 1 root   root   16816 May 25  2020 teaParty
-</span></pre></table></code></div></div><p>Run the Binary and we receive a message from it</p><div class="language-terminal highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</span></pre></table></code></div></div><p>Run the Binary and we receive a message from it.</p><div class="language-terminal highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -306,7 +306,7 @@ The Mad Hatter will be here soon.
 <span class="go">password.txt
 </span><span class="gp">hatter@wonderland:/home/hatter$</span><span class="w"> </span><span class="nb">cat </span>password.txt
 <span class="go">*****************************************
-</span></pre></table></code></div></div><h2 id="road-to-root"><strong><span style="color:#ff5555">Road to ROOT</span></strong></h2><hr /><p>Ssh as hatter with password from the text file.</p><div class="language-terminal highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</span></pre></table></code></div></div><h2 id="escalate-to-root"><strong><span style="color:#ff5555">Escalate to ROOT</span></strong></h2><hr /><p>Ssh as hatter with password from the text file.</p><div class="language-terminal highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 </pre><td class="rouge-code"><pre><span class="gp">➜  wonderland ssh hatter@$</span>IP
 <span class="go">hatter@10.10.113.230's password:
