@@ -1,5 +1,5 @@
 ---
-title: Tryhackme - Wonderlandd
+title: Tryhackme - Wonderland
 author: Rhovelionz
 date: 2022-10-05 07:20:00 +0700
 categories: [Tryhackme]
