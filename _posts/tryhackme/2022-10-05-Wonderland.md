@@ -1,9 +1,9 @@
 ---
-title: Tryhackme - Wonderlandddddd
+title: Tryhackme - Wonderland
 author: Rhovelionz
 date: 2022-10-05 07:20:00 +0700
 categories: [Tryhackme]
-tags: [Fuzzing, SSH, Date, SETUID, Perl]
+tags: [Fuzzing, Ssh, Date, Setuid, Perl]
 image: /assets/img/Post/wonderland.jpeg
 
 ---
