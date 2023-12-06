@@ -27,8 +27,8 @@ avatar: /assets/img/sample/3_2.png
 github:
   username: rhovelionz             # change to your github username
 
-twitter:
-  username: radivanrh            # change to your twitter username
+#twitter:
+#  username: radivanrh            # change to your twitter username
 
 # linkedin:
 #  username: radivan-hanief-b57740181
@@ -38,10 +38,10 @@ twitter:
 
 social:
   name: Rhovelionz                  # it will shows as the copyright owner in Footer
-  email: radivanhradivanh@gmail.com             # change to your email address
+  email: rhovelionz@gmail.com             # change to your email address
   links:
     # The first element serves as the copyright owner's link
-     - https://twitter.com/radivanrh      # change to your twitter homepage
+    # - https://twitter.com/radivanrh      # change to your twitter homepage
     # - https://github.com/rhovelionzrhovelionz       # change to your github homepage
     # Uncomment below to add more social links
     #- https://www.linkedin.com/in/radivan-hanief-b57740181
