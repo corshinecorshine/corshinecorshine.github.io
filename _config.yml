@@ -8,7 +8,7 @@
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 #--------------------------
 
-title: Rhovelionz                          # the main title
+title: Rhovelz                          # the main title
 
 tagline: Publish Writeup and Pentesting Report  # it will display as the sub-title
 
@@ -16,16 +16,16 @@ description: >-                        # used by seo meta and the atom feed
   All the information provided on this site is for educational purposes only. The author of the site will not be held any responsibility for any misuse of the information.
 
 # Replace with the website url, e.g. 'https://username.github.io'
-url: 'rhovelionz.github.io'
+url: 'rhovelz.github.io'
 
-author: Rhovelionz                  # change to your full name
+author: Rhovelz                  # change to your full name
 
 #avatar: /assets/img/sample/rhovelionz1.jpg
 #avatar: /assets/img/sample/rhovelionz.png
 avatar: /assets/img/sample/3_2.png
 
 github:
-  username: rhovelionz             # change to your github username
+  username: rhovelz             # change to your github username
 
 #twitter:
 #  username: radivanrh            # change to your twitter username
@@ -37,7 +37,7 @@ github:
 #  username: rhovelionz
 
 social:
-  name: Rhovelionz                  # it will shows as the copyright owner in Footer
+  name: rhovelz                  # it will shows as the copyright owner in Footer
   email: rhovelionz@gmail.com             # change to your email address
   links:
     # The first element serves as the copyright owner's link
